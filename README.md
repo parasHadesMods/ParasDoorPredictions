@@ -10,4 +10,6 @@ Goals:
 Non-goals:
  - compatibility with gameplay mods
 
+Installs with modimporter.py, requires ModUtil and RngDisplayMod.
+
 For now, the focus is on any heat runs, so accurate handling of Approval Process and other high-heat specific modifiers is not a priority. PRs that add these feature would be welcome.
