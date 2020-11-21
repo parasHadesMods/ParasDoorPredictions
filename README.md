@@ -6,6 +6,7 @@ Goals:
  - compatibility with other quality-of-life routing mods (eg. RngDisplayMod, StartingBoonSelector)
  - route compatibility with unmodded hades (so that routes are valid for the leaderboard)
  - accuracy of prediction
+ 
 Non-goals:
  - compatibility with gameplay mods
 
