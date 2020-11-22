@@ -72,6 +72,7 @@ end, ParasDoorPredictions)
 ModUtil.WrapBaseFunction("RandomSetNextInitSeed", function(baseFunc, args)
   ParasDoorPredictions.Clear()
   baseFunc(args)
+  print("RandomSetNextInitSeed:", NextSeeds[1])
 end, ParasDoorPredictions)
 
 -- For prediction, we often want to run a function "as if" a global table (eg. CurrentRun) is modified in a certain way.
@@ -147,7 +148,37 @@ ParasDoorPredictions.SecretPointCount = {
   A_Combat24 = 3,
   A_MiniBoss01 = 1,
   A_MiniBoss03 = 2,
-  A_MiniBoss04 = 2
+  A_MiniBoss04 = 2,
+  B_Intro = 1,
+  B_Combat01 = 1,
+  B_Combat02 = 4,
+  B_Combat03 = 2,
+  B_Combat04 = 2,
+  B_Combat05 = 1,
+  B_Combat06 = 6,
+  B_Combat07 = 2,
+  B_Combat08 = 2,
+  B_Combat09 = 2,
+  B_Combat10 = 1,
+  B_Combat21 = 4,
+  B_Combat22 = 2,
+  B_MiniBoss01 = 1,
+  B_MiniBoss02 = 2,
+  C_Intro = 2,
+  C_Combat01 = 3,
+  C_Combat02 = 2,
+  C_Combat03 = 3,
+  C_Combat04 = 3,
+  C_Combat05 = 3,
+  C_Combat06 = 3,
+  C_Combat08 = 4,
+  C_Combat09 = 4,
+  C_Combat10 = 2,
+  C_Combat11 = 4,
+  C_Combat12 = 3,
+  C_Combat13 = 2,
+  C_Combat14 = 1,
+  C_MiniBoss02 = 3,
 }
 
 
@@ -567,20 +598,20 @@ function PredictLoot(door)
     end
     local exitHasShrinePointDoor = exitSecretPointCount > 0 and IsShrinePointDoorEligible(runForWellPrediction, exitRoom)
     if exitRoom.ChosenRewardType ~= "Devotion" then -- don't care about trials, we won't take them anyways
-     SetupRoomReward(tmpRun, exitRoom, rewardsChosen)
-     table.insert( rewardsChosen, {
-       RewardType = exitRoom.ChosenRewardType,
-       ForceLootName = exitRoom.ForceLootName,
-       WellShop = exitHasWellShop,
-       ExitCount = exitRoomExitCount,
-       Fountain = exitIsFountain,
-       ShrinePointDoor = exitHasShrinePointDoor,
-       ChaosGate = exitHasChaosGate,
-       Erebus = exitIsErebus,
-       CanHaveSurvival = exitCanHaveSurvival,
-       RoomName = exitRoom.Name
-     })
+      SetupRoomReward(tmpRun, exitRoom, rewardsChosen)
     end
+    table.insert( rewardsChosen, {
+      RewardType = exitRoom.ChosenRewardType,
+      ForceLootName = exitRoom.ForceLootName,
+      WellShop = exitHasWellShop,
+      ExitCount = exitRoomExitCount,
+      Fountain = exitIsFountain,
+      ShrinePointDoor = exitHasShrinePointDoor,
+      ChaosGate = exitHasChaosGate,
+      Erebus = exitIsErebus,
+      CanHaveSurvival = exitCanHaveSurvival,
+      RoomName = exitRoom.Name
+    })
   end
   predictions.NextExitRewards = rewardsChosen
 
