@@ -20,6 +20,7 @@ Requires Museus7's RngDisplayMod.
 ModUtil.RegisterMod("ParasDoorPredictions")
 
 local config = {
+  Control = "Gift",
   ShowRewardType = true,
   ShowChaosGates = true,
   ShowErebusGates = true,
@@ -803,7 +804,7 @@ function ShowDoorPreview(annotation, door)
   ShowExits(annotation, predictions.NextExitRewards)
 end
 
-OnControlPressed { "Reload",
+OnControlPressed { config.Control,
   function (triggerArgs)
     if not RngDisplayMod then
       return ModUtilHades.PrintOverhead("RngDisplayMod not installed.")
