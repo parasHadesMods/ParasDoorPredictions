@@ -1,6 +1,8 @@
 # ParasDoorPredictions
 Hades Mod for predicting the contents of the next room.
 
+Press "Gift" once the doors unlock to show what's behind them.
+
 Goals:
  - make it faster to route speedruns of hades
  - compatibility with other quality-of-life routing mods (eg. RngDisplayMod, StartingBoonSelector)
