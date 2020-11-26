@@ -115,6 +115,11 @@ ParasDoorPredictions.GetRarityChances = CloneFunction(GetRarityChances, function
   end
 end)
 
+ParasDoorPredictions.IsVoiceLineEligible = CloneFunction(IsVoiceLineEligible, function(env, func)
+  env.CheckCooldown = CheckCooldownNoTrigger
+  return func
+end)
+
 -- data
 ParasDoorPredictions.OverrideExitCount = {
   RoomSecret01 = 2,
@@ -294,7 +299,7 @@ function SimulateVoiceLines(run, voiceLines)
   if source == nil then
     print("SimulateVoiceLines: source == nil")
   end
-  if not IsVoiceLineEligible(run, voiceLines, nil, nil, source, nil) then
+  if not ParasDoorPredictions.IsVoiceLineEligible(run, voiceLines, nil, nil, source, nil) then
     print("SimulateVoiceLines: Ineligible")
     if voiceLines.PlayedNothingFunctionName ~= nil then
       print("==== BEGIN KNOWN ISSUE ====")
@@ -331,7 +336,7 @@ function SimulateVoiceLine(run, line, source)
     local eligibleUnplayedLines = {}
     local allEligibleLines = {}
     for k, subLine in ipairs(line) do
-      if IsVoiceLineEligible(run, subLine, nil, line, source) then
+      if ParasDoorPredictions.IsVoiceLineEligible(run, subLine, nil, line, source) then
         table.insert(allEligibleLines, subLine)
         if not TmpPlayedRandomLines[subLine.Cue] then
           table.insert(eligibleUnplayedLines, subLine)
@@ -356,7 +361,7 @@ function SimulateVoiceLine(run, line, source)
     end
   else
     for k, subLine in ipairs( line ) do
-      if IsVoiceLineEligible(run, subLine, nil, line, source) then
+      if ParasDoorPredictions.IsVoiceLineEligible(run, subLine, nil, line, source) then
         if SimulateVoiceLine(run, subLine, source) then
           return true
         end
@@ -454,6 +459,15 @@ function PredictLoot(door)
     CoinFlip(rng) -- DisplayPlayerDamageText
   end
  -- 2. Simulate LeaveRoomPresentation, playing voice lines etc.
+  local exitFunctionName = CurrentRun.CurrentRoom.ExitFunctionName or door.ExitFunctionName or "LeaveRoomPresentation"
+  if exitFunctionName == "AsphodelLeaveRoomPresentation" then
+    if CurrentRun.CurrentRoom.ExitVoiceLines ~= nil then
+      SimulateVoiceLines(tmpRun, CurrentRun.CurrentRoom.ExitVoiceLines)
+    else
+      print("GlobalVoiceLines.ExitedAsphodelRoomVoiceLines")
+      SimulateVoiceLines(tmpRun, GlobalVoiceLines.ExitedAsphodelRoomVoiceLines)
+    end
+  end
   if door.ExitVoiceLines ~= nil then
     print("door.ExitVoiceLines")
     SimulateVoiceLines(tmpRun, door.ExitVoiceLines)
@@ -480,7 +494,6 @@ function PredictLoot(door)
   -- 3. LeaveRoom, determining the orientation and encounter for the next
   --    room, and also rolling the chaos well if any.
   -- ExitDirection is set in LeaveRoomPresentation
-  local exitFunctionName = CurrentRun.CurrentRoom.ExitFunctionName or door.ExitFunctionName or "LeaveRoomPresentation"
   local heroExitIds = GetIdsByType({ Name = "HeroExit" })
   local hasExitDirection = (exitFunctionName == "LeaveRoomPresentation" and not IsEmpty(heroExitIds)) or exitFunctionName == "AsphodelLeaveRoomPresentation"
   if hasExitDirection and tmpRoom.EntranceDirection ~= nil and tmpRoom.EntranceDirection ~= "LeftRight" then
