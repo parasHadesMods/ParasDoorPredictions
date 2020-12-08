@@ -73,7 +73,9 @@ end, ParasDoorPredictions)
 ModUtil.WrapBaseFunction("RandomSetNextInitSeed", function(baseFunc, args)
   ParasDoorPredictions.Clear()
   baseFunc(args)
-  print("RandomSetNextInitSeed:", NextSeeds[1])
+  if RngDisplayMod then
+    print("RandomSetNextInitSeed:", RngDisplayMod.CurrentUses, NextSeeds[1])
+  end
 end, ParasDoorPredictions)
 
 -- For prediction, we often want to run a function "as if" a global table (eg. CurrentRun) is modified in a certain way.
@@ -202,7 +204,9 @@ ParasDoorPredictions.FriendlyNameMap = {
   RoomRewardMetaPointDropRunProgress = "Darkness",
   GiftDropRunProgress = "Nectar",
   StackUpgrade = "Pom of Power",
+  StackUpgradeDrop = "Pom of Power",
   RoomRewardMaxHealthDrop = "Centaur Heart",
+  RoomRewardHealDrop = "Food",
   RoomRewardMoneyDrop = "Charon's Obols",
   WeaponUpgrade = "Daedalus Hammer",
   AphroditeUpgrade = "Aphrodite",
