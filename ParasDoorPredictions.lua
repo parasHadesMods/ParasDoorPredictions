@@ -13,9 +13,6 @@ Currently shows:
   - Reward type in the subsequent room.
   - Number of exits to the subsequent room.
   - Whether a well shop is in the subsequent room.
-
-Requires Museus7's RngDisplayMod.
-
 ]]
 ModUtil.RegisterMod("ParasDoorPredictions")
 
@@ -73,10 +70,36 @@ end, ParasDoorPredictions)
 ModUtil.WrapBaseFunction("RandomSetNextInitSeed", function(baseFunc, args)
   ParasDoorPredictions.Clear()
   baseFunc(args)
-  if RngDisplayMod then
-    print("RandomSetNextInitSeed:", RngDisplayMod.CurrentUses, NextSeeds[1])
-  end
+  print("RandomSetNextInitSeed:", ParasDoorPredictions.CurrentUses, NextSeeds[1])
 end, ParasDoorPredictions)
+
+-- track rng uses
+ParasDoorPredictions.CurrentSeed = 0
+ParasDoorPredictions.CurrentUses = 0
+
+local random = ModUtil.GetBaseBottomUpValues("RandomInit")
+
+ModUtil.WrapFunction(random, {"Rng", "Seed"}, function(baseFunc, self, s, id)
+  if (id or self.id) == 1 then
+    ParasDoorPredictions.CurrentSeed = s
+    ParasDoorPredictions.CurrentUses = 0
+  end
+  return baseFunc(self, s, id)
+end)
+
+ModUtil.WrapFunction(random, {"Rng", "Random"}, function(baseFunc, self, a, b)
+  if self.id == 1 then
+    ParasDoorPredictions.CurrentUses = ParasDoorPredictions.CurrentUses + 1
+  end
+  return baseFunc(self, a, b)
+end)
+
+ModUtil.WrapFunction(random, {"Rng", "RandomGaussian"}, function(baseFunc, self)
+  if self.id == 1 then
+    ParasDoorPredictions.CurrentUses = ParasDoorPredictions.CurrentUses + 1
+  end
+  return baseFunc(self)
+end)
 
 -- For prediction, we often want to run a function "as if" a global table (eg. CurrentRun) is modified in a certain way.
 -- Copy the relevant functions and modify their environment so these can be overridden.
@@ -504,8 +527,8 @@ function PredictLoot(door)
 
   local rng = GetGlobalRng()
   
-  local oldSeed = RngDisplayMod.CurrentSeed
-  local oldUses = RngDisplayMod.CurrentUses
+  local oldSeed = ParasDoorPredictions.CurrentSeed
+  local oldUses = ParasDoorPredictions.CurrentUses
   -- Advance the rng to the right position.
   -- 1. If this is a Chaos room, roll as if we had interacted with it,
   --    ie. take damage, display health, etc.
@@ -590,7 +613,7 @@ function PredictLoot(door)
   end
   -- Determine the seed of the next room, which we will use for predicting
   -- what will occur there.
-  local uses = RngDisplayMod.CurrentUses
+  local uses = ParasDoorPredictions.CurrentUses
   local seed = RandomInt(-2147483647, 2147483646)
   print("PredictLoot: as if", uses, seed)
 
@@ -879,10 +902,7 @@ end
 
 OnControlPressed { config.Control,
   function (triggerArgs)
-    if not RngDisplayMod then
-      return ModUtilHades.PrintOverhead("RngDisplayMod not installed.")
-    end
-    local rngUses = RngDisplayMod.CurrentUses
+    local rngUses = ParasDoorPredictions.CurrentUses
     if ParasDoorPredictions.Enabled and (ParasDoorPredictions.Dirty or rngUses ~= ParasDoorPredictions.LastUpdateRngUses) then
       ParasDoorPredictions.Dirty = false
       ParasDoorPredictions.LastUpdateRngUses = rngUses
