@@ -29,7 +29,7 @@ local config = {
   ShowWellShops = true,
   ShowStoreOptions = true,
   ShowUpgradeOptions = true,
-  ShowRerolls = true,
+  ShowRerolls = false,
   ShowExits = true,
   ShowEncounters = true,
   ShowEnemies = true,
@@ -189,6 +189,60 @@ ParasDoorPredictions.SecretPointCount = {
   C_MiniBoss02 = 3,
 }
 
+ParasDoorPredictions.ChallengeSwitchBaseCount = {
+  A_Combat01 = 2,
+  A_Combat02 = 2,
+  A_Combat03 = 1,
+  A_Combat04 = 1,
+  A_Combat05 = 2,
+  A_Combat06 = 2,
+  A_Combat07 = 1,
+  A_Combat08A = 1,
+  A_Combat08B = 1,
+  A_Combat09 = 2,
+  A_Combat10 = 1,
+  A_Combat11 = 1,
+  A_Combat12 = 1,
+  A_Combat13 = 1,
+  A_Combat14 = 3,
+  A_Combat15 = 2,
+  A_Combat16 = 2,
+  A_Combat17 = 1,
+  A_Combat18 = 2,
+  A_Combat19 = 1,
+  A_Combat20 = 2,
+  A_Combat21 = 1,
+  A_Combat24 = 2,
+  A_PostBoss01 = 2,
+  B_Combat01 = 1,
+  B_Combat02 = 2,
+  B_Combat03 = 2,
+  B_Combat04 = 2,
+  B_Combat05 = 2,
+  B_Combat06 = 2,
+  B_Combat07 = 2,
+  B_Combat08 = 2,
+  B_Combat09 = 1,
+  B_Combat10 = 1,
+  B_Combat21 = 2,
+  B_Combat22 = 3,
+  B_PostBoss01 = 2
+  C_Combat01 = 2,
+  C_Combat02 = 2,
+  C_Combat03 = 2,
+  C_Combat04 = 2,
+  C_Combat05 = 2,
+  C_Combat06 = 2,
+  C_Combat08 = 2,
+  C_Combat09 = 2,
+  C_Combat10 = 2,
+  C_Combat11 = 2,
+  C_Combat12 = 2,
+  C_Combat13 = 2,
+  C_Combat14 = 2,
+  C_PostBoss01 = 2
+}
+
 
 ParasDoorPredictions.RarityColorMap = {
   Common = Color.BoonPatchCommon,
@@ -302,6 +356,7 @@ function SimulateVoiceLines(run, voiceLines)
   local source = GetLineSource(voiceLines)
   if source == nil then
     print("SimulateVoiceLines: source == nil")
+    return
   end
   if not ParasDoorPredictions.IsVoiceLineEligible(run, voiceLines, nil, nil, source, nil) then
     print("SimulateVoiceLines: Ineligible")
@@ -496,7 +551,7 @@ function PredictLoot(door)
     end
   end
   -- 3. LeaveRoom, determining the orientation and encounter for the next
-  --    room, and also rolling the chaos well if any.
+  --    room, and also rolling the well shop if any.
   -- ExitDirection is set in LeaveRoomPresentation
   local heroExitIds = GetIdsByType({ Name = "HeroExit" })
   local hasExitDirection = (exitFunctionName == "LeaveRoomPresentation" and not IsEmpty(heroExitIds)) or exitFunctionName == "AsphodelLeaveRoomPresentation"
@@ -522,14 +577,14 @@ function PredictLoot(door)
     tmpRoom.Store = FillInShopOptions({ StoreData = StoreData.RoomShop, RoomName = tmpRoom.Name })
     predictions.StoreOptions = tmpRoom.Store.StoreOptions
   end
-  if predictions.HasFountain then
-    -- We run shop generation anyways to ensure that the rng is advanced correctly before seeding the next room. But if it's a fountain, the shop won't actually be present, so don't return any contents.
-    -- TODO: Check if non-tartarus fountain rooms can have well shops
+  local challengeSwitchBaseCount = ParasDoorPredictions.ChallengeSwitchBaseCount[tmpRoom.Name] or 0
+  if challengeSwitchBaseCount > 0 then
+    -- We run shop generation anyways to ensure that the rng is advanced correctly before seeding
+    -- the next room. But only some rooms have spawn locations for a well shop.
     hasWellShop = false
     predictions.StoreOptions = nil
   end
   if tmpRoom.ChosenRewardType == "Shop" then
-    hasWellShop = false
     tmpRoom.Store = FillInShopOptions({ StoreData = StoreData.WorldShop, RoomName = tmpRoom.Name })
     predictions.StoreOptions = tmpRoom.Store.StoreOptions
   end
@@ -603,12 +658,13 @@ function PredictLoot(door)
   end
   local rewardsChosen = {}
   for i, exitRoom in pairs(exitRooms) do
-    local exitCanHaveSurvival = Contains(exitRoom.LegalEncounters, "SurvivalTartarus") and IsEncounterEligible(runForWellPrediction, exitRoom, EncounterData.SurvivalTartarus)
+    local exitCanHaveSurvival = Contains(exitRoom.LegalEncounters, "SurvivalTartarus") and IsEncounterEligible(runForWellPrediction, exitRoom, EncounterData.SurvivalTartarus) and exitRoom.ChosenRewardType ~= "Devotion"
     local exitIsFountain = IsFountainRoom(exitRoom)
     local exitIsErebus = IsErebusRoom(exitRoom)
     local exitRoomExitCount = ExitCountForRoom(exitRoom)
     exitRoom.ChosenRewardType = ParasDoorPredictions.ChooseRoomReward(tmpRun, exitRoom, rewardStoreName, rewardsChosen) -- calls RandomSynchronize(4)
-    local exitHasWellShop = IsWellShopEligible(runForWellPrediction, exitRoom) and exitRoom.ChosenRewardType ~= "Shop" and not exitIsFountain -- TODO: check if non-Tartarus fountain rooms can have shops
+    local exitChallengeSwitchBaseCount = ParasDoorPredictions.ChallengeSwitchBaseCount[exitRoom.Name] or 0
+    local exitHasWellShop = IsWellShopEligible(runForWellPrediction, exitRoom) and exitChallengeSwitchBaseCount > 0
     local exitSecretPointCount = ParasDoorPredictions.SecretPointCount[exitRoom.Name] or 0
     local exitHasChaosGate = exitSecretPointCount > 0 and IsSecretDoorEligible(runForWellPrediction, exitRoom)
     if exitHasChaosGate then
