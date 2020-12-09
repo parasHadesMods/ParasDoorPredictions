@@ -186,7 +186,7 @@ ParasDoorPredictions.SecretPointCount = {
   C_Combat12 = 3,
   C_Combat13 = 2,
   C_Combat14 = 1,
-  C_MiniBoss02 = 3,
+  C_MiniBoss02 = 3
 }
 
 ParasDoorPredictions.ChallengeSwitchBaseCount = {
@@ -226,7 +226,7 @@ ParasDoorPredictions.ChallengeSwitchBaseCount = {
   B_Combat10 = 1,
   B_Combat21 = 2,
   B_Combat22 = 3,
-  B_PostBoss01 = 2
+  B_PostBoss01 = 2,
   C_Combat01 = 2,
   C_Combat02 = 2,
   C_Combat03 = 2,
