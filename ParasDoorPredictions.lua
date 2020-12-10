@@ -601,7 +601,7 @@ function PredictLoot(door)
     predictions.StoreOptions = tmpRoom.Store.StoreOptions
   end
   local challengeSwitchBaseCount = ParasDoorPredictions.ChallengeSwitchBaseCount[tmpRoom.Name] or 0
-  if challengeSwitchBaseCount > 0 then
+  if challengeSwitchBaseCount == 0 then
     -- We run shop generation anyways to ensure that the rng is advanced correctly before seeding
     -- the next room. But only some rooms have spawn locations for a well shop.
     hasWellShop = false
