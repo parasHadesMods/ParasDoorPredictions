@@ -156,7 +156,6 @@ end)
 ParasDoorPredictions.AssumedUpgradableGodTraitCount = 0
 ModUtil.WrapBaseFunction("UpgradableGodTraitCountAtLeast", function(baseFunc, num)
   local adjustedNum = num - ParasDoorPredictions.AssumedUpgradableGodTraitCount
-  print("assuming", ParasDoorPredictions.AssumedUpgradableGodTraitCount)
   if adjustedNum <= 0 then
     return true
   else
