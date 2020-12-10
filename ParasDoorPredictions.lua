@@ -79,6 +79,31 @@ ParasDoorPredictions.CurrentUses = 0
 
 local random = ModUtil.GetBaseBottomUpValues("RandomInit")
 
+ParasDoorPredictions.PrintRngUses = false
+local function printRngUse()
+  local linesToSkip = 1
+  local linesToPrint = 2
+  -- log which function caused this use of the RNG
+  if ParasDoorPredictions.PrintRngUses then
+   local traceback = debug.traceback()
+   for line in traceback:gmatch"[^\n]+" do
+     if linesToSkip > 0 then
+       linesToSkip = linesToSkip - 1
+     elseif (line:match"stack traceback" or
+         line:match"string \"Random\"" or
+         line:match"string \"ParasDoorPredictions\"" or
+         line:match"GetRandomValue" or
+         line:match"RemoveRandomValue" or
+         line:match"tail calls") then
+     else
+       print("Use", ParasDoorPredictions.CurrentUses, line)
+       linesToPrint = linesToPrint - 1
+     end
+     if linesToPrint == 0 then break end
+   end
+ end
+end
+
 ModUtil.WrapFunction(random, {"Rng", "Seed"}, function(baseFunc, self, s, id)
   if (id or self.id) == 1 then
     ParasDoorPredictions.CurrentSeed = s
@@ -90,6 +115,7 @@ end)
 ModUtil.WrapFunction(random, {"Rng", "Random"}, function(baseFunc, self, a, b)
   if self.id == 1 then
     ParasDoorPredictions.CurrentUses = ParasDoorPredictions.CurrentUses + 1
+    printRngUse()
   end
   return baseFunc(self, a, b)
 end)
@@ -97,8 +123,17 @@ end)
 ModUtil.WrapFunction(random, {"Rng", "RandomGaussian"}, function(baseFunc, self)
   if self.id == 1 then
     ParasDoorPredictions.CurrentUses = ParasDoorPredictions.CurrentUses + 1
+    printRngUse()
   end
   return baseFunc(self)
+end)
+
+ModUtil.WrapBaseFunction("RandomSynchronize", function(baseFunc, offset, rngId)
+  local previousPrintState = ParasDoorPredictions.PrintRngUses
+  ParasDoorPredictions.PrintRngUses = false
+  print("RandomSynchronize", offset)
+  baseFunc(offset, rngId)
+  ParasDoorPredictions.PrintRngUses = previousPrintState
 end)
 
 -- For prediction, we often want to run a function "as if" a global table (eg. CurrentRun) is modified in a certain way.
@@ -118,11 +153,27 @@ ParasDoorPredictions.CreateRoom = CloneFunction(CreateRoom, function(env, func)
   end
 end)
 
+ParasDoorPredictions.AssumedUpgradableGodTraitCount = 0
+ModUtil.WrapBaseFunction("UpgradableGodTraitCountAtLeast", function(baseFunc, num)
+  local adjustedNum = num - ParasDoorPredictions.AssumedUpgradableGodTraitCount
+  print("assuming", ParasDoorPredictions.AssumedUpgradableGodTraitCount)
+  if adjustedNum <= 0 then
+    return true
+  else
+    return baseFunc(adjustedNum)
+  end
+end, ParasDoorPredictions)
+
 ParasDoorPredictions.ChooseRoomReward = CloneFunction(ChooseRoomReward, function(env, func)
   return function(run, room, rewardStoreName, previouslyChosenRewards, args)
     env.CurrentRun = run
     env.ChooseRoomReward = ParasDoorPredictions.ChooseRoomReward
-    return func(run, room, rewardStoreName, previouslyChosenRewards, args)
+    if args.PreviousRoom.ChosenRewardType == "Boon" then
+      ParasDoorPredictions.AssumedUpgradableGodTraitCount = 1
+    end
+    local result = func(run, room, rewardStoreName, previouslyChosenRewards, args)
+    ParasDoorPredictions.AssumedUpgradableGodTraitCount = 0
+    return result
   end
 end)
 
@@ -685,7 +736,7 @@ function PredictLoot(door)
     local exitIsFountain = IsFountainRoom(exitRoom)
     local exitIsErebus = IsErebusRoom(exitRoom)
     local exitRoomExitCount = ExitCountForRoom(exitRoom)
-    exitRoom.ChosenRewardType = ParasDoorPredictions.ChooseRoomReward(tmpRun, exitRoom, rewardStoreName, rewardsChosen) -- calls RandomSynchronize(4)
+    exitRoom.ChosenRewardType = ParasDoorPredictions.ChooseRoomReward(tmpRun, exitRoom, rewardStoreName, rewardsChosen, { PreviousRoom = tmpRoom }) -- calls RandomSynchronize(4)
     local exitChallengeSwitchBaseCount = ParasDoorPredictions.ChallengeSwitchBaseCount[exitRoom.Name] or 0
     local exitHasWellShop = IsWellShopEligible(runForWellPrediction, exitRoom) and exitChallengeSwitchBaseCount > 0
     local exitSecretPointCount = ParasDoorPredictions.SecretPointCount[exitRoom.Name] or 0
