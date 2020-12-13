@@ -325,99 +325,6 @@ ParasDoorPredictions.RarityColorMap = {
   Legendary = Color.BoonPatchLegendary
 }
 
-ParasDoorPredictions.FriendlyNameMap = {
-  GemDropRunProgress = "Gems",
-  LockKeyDropRunProgress = "Key",
-  RoomRewardMetaPointDropRunProgress = "Darkness",
-  GiftDropRunProgress = "Nectar",
-  StackUpgrade = "Pom of Power",
-  StackUpgradeDrop = "Pom of Power",
-  RoomRewardMaxHealthDrop = "Centaur Heart",
-  RoomRewardHealDrop = "Food",
-  RoomRewardMoneyDrop = "Charon's Obols",
-  WeaponUpgrade = "Daedalus Hammer",
-  AphroditeUpgrade = "Aphrodite",
-  AresUpgrade = "Ares",
-  ArtemisUpgrade = "Artemis",
-  AthenaUpgrade = "Athena",
-  DemeterUpgrade = "Demeter",
-  DionysusUpgrade = "Dionysus",
-  PoseidonUpgrade = "Poseidon",
-  ZeusUpgrade = "Zeus",
-  Swarmer = "Numbskull",
-  SwarmerElite = "Armored Numbskull",
-  HeavyMelee = "Thug",
-  HeavyMeleeElite = "Armored Thug",
-  DisembodiedHand = "Wringer",
-  DisembodiedHandElite = "Armored Wringer",
-  PunchingBagUnit = "Lout",
-  PunchingBagUnitElite = "Armored Lout",
-  ThiefMineLayer = "Pest",
-  ThiefMineLayerElite = "Armored Pest",
-  ThiefImpulseMineLayer = "Bother",
-  ThiefImpulseMineLayerElite = "Armored Bother",
-  LightRanged = "Witch",
-  LightRangedElite = "Armored Witch",
-  SpreadShotUnit = "Spreader",
-  SpreadShotUnitElite = "Armored Spreader",
-  SplitShotUnit = "Splitter",
-  SplitShotUnitElite = "Armored Splitter",
-  HeavyRanged = "Brimstone",
-  HeavyRangedElite = "Armored Brimstone",
-  HeavyRangedForked = "SnakeStone",
-  HeavyRangedForkedElite = "Armored SnakeStone",
-  HealRanged = "Healing Brimstone",
-  HealRangedElite = "Armored Healing Brimstone",
-  ShieldRanged = "Shield Brimstone",
-  ShieldRangedElite = "Armored Shield Brimstone",
-  RangedBurrower = "Dracon",
-  RangedBurrowerElite = "Armored Dracon",
-  Chariot = "Chariot",
-  ChariotElite = "Armored Chariot",
-  ChariotSuicide = "Flamewheel",
-  ChariotSuicideElite = "Armored Flamewheel",
-  LightSpawner = "Skullomat",
-  LightSpawnerElite = "Armored Skullomat",
-  FlurrySpawner = "Soul Catcher",
-  FlurrySpawnerElite = "Armored Soul Catcher",
-  BloodlessNaked = "Bloodless",
-  BloodlessNakedElite = "Armored Bloodless",
-  BloodlessNakedBerserker = "Bone-Raker",
-  BloodlessNakedBerserkerElite = "Armored Bone-Raker",
-  BloodlessWaveFist = "Wave-Maker",
-  BloodlessWaveFistElite = "Armored Wave-Maker",
-  BloodlessSelfDestruct = "Slam-Dancer",
-  BloodlessSelfDestructElite = "Armored Slam-Dancer",
-  BloodlessPitcher = "Burn-Flinger",
-  BloodlessPitcherElite = "Armored Burn-Flinger",
-  BloodlessGrenadier = "Inferno-Bomber",
-  BloodlessGrenadierElite = "Armored Inferno-Bomber",
-  CrusherUnit = "Skull Crusher",
-  CrusherUnitElite = "Armored Skull Crusher",
-  FreezeShotUnit = "Gorgon",
-  FreezeShotUnitElite = "Armored Gorgon",
-  ShadeNaked = "Eyeball",
-  ShadeBowUnit = "Strongbow",
-  ShadeBowUnitElite = "Armored Strongbow",
-  ShadeSpearUnit = "Longspear",
-  ShadeSpearUnitElite = "Armored Longspear",
-  ShadeShieldUnit = "Greatshield",
-  ShadeShieldUnitElite = "Armored Greatshield",
-  ShadeSwordUnit = "Brightsword",
-  ShadeSwordUnitElite = "Armored Brightsword",
-  SatyrRanged = "Satyr",
-  SatyrRangedElite = "Armored Satyr",
-  Crawler = "Crawler",
-  CrawlerElite = "Armored Crawler",
-  CrawlerMiniboss = "Tiny Vermin",
-  RatThug = "Gigantic Vermin",
-  RatThugElite = "Armored Gigantic Vermin"
-}
-
-function ToFriendlyName(name)
-  return ParasDoorPredictions.FriendlyNameMap[name] or name
-end
-
 TmpPlayedRandomLines = nil
 -- like PlayVoiceLines, but assumes neverQueue = true
 -- and args = nil, which is how it's called in LeaveRoomAudio
@@ -789,8 +696,8 @@ function CreateAnnotation(objectId)
   return annotation
 end
 
-function AddLine(annotation, text, color)
-  color = color or Color.White
+function AddLine(annotation, text, args)
+  args = args or {}
   local yOffset = annotation.NextLineNumber * 12
 
   local id = SpawnObstacle({
@@ -804,7 +711,9 @@ function AddLine(annotation, text, color)
     OffsetX = 0, OffsetY = yOffset,
     Font = "AlegreyaSansSCBold",
     FontSize = 18,
-    Color = color,
+    Color = args.Color or Color.White,
+    LuaKey = args.LuaKey,
+    LuaValue = args.LuaValue,
     Justification = "Center"})
 
   annotation.NextLineNumber = annotation.NextLineNumber + 1
@@ -819,17 +728,29 @@ function ResetAnnotation(annotation)
   annotation.NextLineNumber = 0
 end
 
+-- These don't seems to have entries in HelpText
+ParasDoorPredictions.StoreDropNames = {
+  RoomRewardHealDrop = "Food",
+  StoreRewardLockKeyDrop = "Key",
+  StoreRewardMetaPointDrop = "Darkness",
+  StackUpgradeDrop = "Pom of Power"
+}
+
 function ShowStoreOptions(annotation, storeOptions)
   if config.ShowStoreOptions and storeOptions ~= nil then
     for i, item in pairs(storeOptions) do
       if item.Args ~= nil and item.Args.ForceLootName ~= nil then
-        AddLine(annotation, item.Name .. " " .. item.Args.ForceLootName)
+        local text = "{$ForceLootName}"
+        if item.Name == "BlindLootBox" then
+          text = text .. " (Blind)"
+        end
+        AddLine(annotation, text, {LuaKey = "ForceLootName", LuaValue = item.Args.ForceLootName})
         for id, choice in pairs(item.Args.UpgradeOptions) do
           local color = ParasDoorPredictions.RarityColorMap[choice.Rarity]
           AddLine(annotation, choice.ItemName, color)
         end
       else
-        AddLine(annotation, item.Name)
+        AddLine(annotation, ParasDoorPredictions.StoreDropNames[item.Name] or item.Name)
       end
     end
   end
@@ -838,12 +759,12 @@ end
 function ShowUpgradeOptions(annotation, upgradeOptions)
   if upgradeOptions ~= nil then
     for id, choice in pairs(upgradeOptions) do
-      local upgradeOptionString = ToFriendlyName(choice.ItemName)
+      local upgradeOptionString = "{$Choice.ItemName}"
       if choice.SecondaryItemName ~= nil then
-        upgradeOptionString = upgradeOptionString .. " with " .. ToFriendlyName(choice.SecondaryItemName)
+        upgradeOptionString = "{$Choice.SecondaryItemName} " .. upgradeOptionString
       end
       local color = ParasDoorPredictions.RarityColorMap[choice.Rarity]
-      AddLine(annotation, upgradeOptionString, color)
+      AddLine(annotation, upgradeOptionString, {Color = color, LuaKey="Choice", LuaValue=choice})
     end
   end
 end
@@ -862,26 +783,20 @@ function ShowEncounter(annotation, encounter)
   if config.ShowEnemies and encounter.SpawnWaves ~= nil then
     for i, wave in pairs(encounter.SpawnWaves) do
       local waveString = ""
+      local spawns = {}
       for j, spawn in pairs(wave.Spawns) do 
         if waveString ~= "" then
           waveString = waveString .. ", "
         end
-        waveString = waveString .. ToFriendlyName(spawn.Name)
+        waveString = waveString .. "{$Spawns[" .. j .. "]}"
+        table.insert(spawns, spawn.Name)
       end
-      AddLine(annotation, waveString)
+      AddLine(annotation, waveString, {LuaKey = "Spawns", LuaValue = spawns})
     end
   end
 end
 
 -- reward can be a room
-function RewardTypeString(rewardType, forceLootName)
-  local rewardString = ToFriendlyName(rewardType)
-  if forceLootName ~= nil then
-    rewardString = rewardString .. " of " .. ToFriendlyName(forceLootName)
-  end
-  return rewardString
-end
-
 function ShowExits(annotation, nextExitRewards)
   if not config.ShowExits then 
     return
@@ -893,7 +808,10 @@ function ShowExits(annotation, nextExitRewards)
       rewardString = rewardString .. reward.RoomName .. " "
     end
     if config.ShowRewardType and reward.RewardType ~= nil then
-       rewardString = rewardString .. RewardTypeString(reward.RewardType, reward.ForceLootName)
+       rewardString = rewardString .. "{$Reward.RewardType}"
+       if reward.ForceLootName ~= nil then
+         rewardString = rewardString .. " of {$Reward.ForceLootName}"
+       end
     end
     if config.ShowFountains and reward.Fountain then
        rewardString = rewardString .. " with Fountain"
@@ -914,7 +832,7 @@ function ShowExits(annotation, nextExitRewards)
       rewardString = rewardString .. " with possible survival"
     end
     rewardString = rewardString .. " (" .. reward.ExitCount .. " Exits)"
-    AddLine(annotation, rewardString)
+    AddLine(annotation, rewardString, {LuaKey = "Reward", LuaValue = reward})
   end
 end
 
@@ -923,7 +841,11 @@ function ShowDoorPreview(annotation, door)
     AddLine(annotation, door.Room.Name)
   end
   if config.ShowRewardType and door.Room.ChosenRewardType ~= nil then
-    AddLine(annotation, RewardTypeString(door.Room.ChosenRewardType, door.Room.ForceLootName))
+    local rewardString = "{$Room.ChosenRewardType}"
+    if door.Room.ForceLootName then
+      rewardString = rewardString .. " {$Room.ForceLootName}"
+    end
+    AddLine(annotation, rewardString, {LuaKey = "Room", LuaValue = door.Room})
   end
   local predictions = PredictLoot(door)
   if config.ShowStoreOptions and predictions.StoreOptions ~= nil then
