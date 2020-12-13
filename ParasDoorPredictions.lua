@@ -808,9 +808,10 @@ function ShowExits(annotation, nextExitRewards)
       rewardString = rewardString .. reward.RoomName .. " "
     end
     if config.ShowRewardType and reward.RewardType ~= nil then
-       rewardString = rewardString .. "{$Reward.RewardType}"
        if reward.ForceLootName ~= nil then
-         rewardString = rewardString .. " of {$Reward.ForceLootName}"
+         rewardString = rewardString .. "Boon of {$Reward.ForceLootName}"
+       else
+         rewardString = rewardString .. "{$Reward.RewardType}"
        end
     end
     if config.ShowFountains and reward.Fountain then
@@ -843,7 +844,7 @@ function ShowDoorPreview(annotation, door)
   if config.ShowRewardType and door.Room.ChosenRewardType ~= nil then
     local rewardString = "{$Room.ChosenRewardType}"
     if door.Room.ForceLootName then
-      rewardString = rewardString .. " {$Room.ForceLootName}"
+      rewardString = "Boon of {$Room.ForceLootName}"
     end
     AddLine(annotation, rewardString, {LuaKey = "Room", LuaValue = door.Room})
   end
