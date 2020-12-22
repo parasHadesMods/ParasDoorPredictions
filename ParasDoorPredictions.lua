@@ -398,9 +398,7 @@ function SimulateVoiceLine(run, line, source, args)
         for k, subLine in ipairs(line) do
           TmpPlayedRandomLines[subLine.Cue] = nil
         end
-        print("turn the record over")
         randomLine = GetRandomValue( allEligibleLines )
-        print(randomLine.Cue)
       else
         randomLine = GetRandomValue( eligibleUnplayedLines )
       end
@@ -569,8 +567,6 @@ function PredictLoot(door)
   if tmpRoom.Encounter == nil then
     local tmpRun = DeepCopyTable(CurrentRun)
     tmpRoom.Encounter = ChooseEncounter(tmpRun, tmpRoom)
-  else
-    print("Already have encounter", tmpRoom.Encounter.Name)
   end
   predictions.Encounter = tmpRoom.Encounter
   -- RunShopGeneration
