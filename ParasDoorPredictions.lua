@@ -326,6 +326,7 @@ ParasDoorPredictions.RarityColorMap = {
 }
 
 TmpPlayedRandomLines = nil
+TmpPlayingVoiceLines = {}
 -- like PlayVoiceLines, but assumes neverQueue = true
 -- and args = nil, which is how it's called in LeaveRoomAudio
 function SimulateVoiceLines(run, voiceLines)
@@ -347,18 +348,17 @@ function SimulateVoiceLines(run, voiceLines)
     end
     return
   end
-  if source.PlayingVoiceLines then
+  if TmpPlayingVoiceLines[source] then
     if voiceLines.Queue == "Interrupt" then
       print("INTERRUPT!")
     else
       return -- assuming neverQueue
     end
   end
-  source.PlayingVoiceLines = true
+  TmpPlayingVoiceLines[source] = true
   -- PlayVoiceLine, including sublines
   TmpPlayedRandomLines = DeepCopyTable(PlayedRandomLines)
   SimulateVoiceLine(run, voiceLines, source)
-  source.PlayingVoiceLines = false
 end
 
 function SimulateVoiceLine(run, line, source)
@@ -497,8 +497,11 @@ function PredictLoot(door)
     CoinFlip(rng) -- DisplayPlayerDamageText
     CoinFlip(rng) -- DisplayPlayerDamageText
   end
- -- 2. Simulate LeaveRoomPresentation, playing voice lines etc.
+  -- 2. Simulate LeaveRoomPresentation, playing voice lines etc.
   local exitFunctionName = CurrentRun.CurrentRoom.ExitFunctionName or door.ExitFunctionName or "LeaveRoomPresentation"
+  -- playing voice lines during the leave room presentation is threaded, so if one SimulateVoiceLine call
+  -- sets a source to playing, it will affect the subsequent ones
+  TmpPlayingVoiceLines = {}
   if exitFunctionName == "AsphodelLeaveRoomPresentation" then
     if CurrentRun.CurrentRoom.ExitVoiceLines ~= nil then
       SimulateVoiceLines(tmpRun, CurrentRun.CurrentRoom.ExitVoiceLines)
