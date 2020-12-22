@@ -79,7 +79,7 @@ ParasDoorPredictions.CurrentUses = 0
 
 local random = ModUtil.GetBaseBottomUpValues("RandomInit")
 
-ParasDoorPredictions.PrintRngUses = false
+ParasDoorPredictions.PrintRngUses = true
 local function printRngUse()
   local linesToSkip = 1
   local linesToPrint = 2
@@ -190,10 +190,19 @@ ParasDoorPredictions.GetRarityChances = CloneFunction(GetRarityChances, function
   end
 end)
 
+ParasDoorPredictions.CheckCooldown = CloneFunction(CheckCooldown, function(env, func)
+  return function(...)
+    env.GlobalCooldowns = TmpGlobalCooldowns
+    return func(...)
+  end
+end)
+
 ParasDoorPredictions.IsVoiceLineEligible = CloneFunction(IsVoiceLineEligible, function(env, func)
-  env.CheckCooldown = CheckCooldownNoTrigger
-  env.SpeechRecord = TmpSpeechRecord
-  return func
+  env.CheckCooldown = ParasDoorPredictions.CheckCooldown
+  return function(...)
+    env.SpeechRecord = TmpSpeechRecord
+    return func(...)
+  end
 end)
 
 -- data
@@ -329,6 +338,7 @@ ParasDoorPredictions.RarityColorMap = {
 TmpPlayedRandomLines = nil
 TmpPlayingVoiceLines = {}
 TmpSpeechRecord = {}
+TmpGlobalCooldowns = {}
 -- like PlayVoiceLines, but assumes neverQueue = true
 -- and args = nil, which is how it's called in LeaveRoomAudio
 function SimulateVoiceLines(run, voiceLines)
@@ -375,6 +385,7 @@ function SimulateVoiceLine(run, line, source, args)
     -- no effect on rng
     -- assume success
     TmpSpeechRecord[line.Cue] = true
+    run.SpeechRecord[line.Cue] = true
     playedSomething = true
     if args.BreakIfPlayed then
       return playedSomething
@@ -407,7 +418,6 @@ function SimulateVoiceLine(run, line, source, args)
       if SimulateVoiceLine(run, randomLine, source, sublineArgs) then
         playedSomething = true
         if args.BreakIfPlayed or randomLine.BreakIfPlayed or subLineArgs.BreakIfPlayed then
-
           return playedSomething
         end
       end
@@ -517,37 +527,30 @@ function PredictLoot(door)
   end
   -- 2. Simulate LeaveRoomPresentation, playing voice lines etc.
   local exitFunctionName = CurrentRun.CurrentRoom.ExitFunctionName or door.ExitFunctionName or "LeaveRoomPresentation"
-  -- playing voice lines during the leave room presentation is threaded, so if one SimulateVoiceLine call
-  -- sets a source to playing, it will affect the subsequent ones
   TmpPlayingVoiceLines = {}
   TmpPlayedRandomLines = DeepCopyTable(PlayedRandomLines)
   TmpSpeechRecord = DeepCopyTable(SpeechRecord)
+  TmpGlobalCooldowns = DeepCopyTable(GlobalCooldowns)
   if exitFunctionName == "AsphodelLeaveRoomPresentation" then
     if CurrentRun.CurrentRoom.ExitVoiceLines ~= nil then
       SimulateVoiceLines(tmpRun, CurrentRun.CurrentRoom.ExitVoiceLines)
     else
-      print("GlobalVoiceLines.ExitedAsphodelRoomVoiceLines")
       SimulateVoiceLines(tmpRun, GlobalVoiceLines.ExitedAsphodelRoomVoiceLines)
     end
   end
   if door.ExitVoiceLines ~= nil then
-    print("door.ExitVoiceLines")
     SimulateVoiceLines(tmpRun, door.ExitVoiceLines)
   elseif CurrentRun.CurrentRoom.ExitVoiceLines ~= nil then
-    print("CurrentRun.CurrentRoom.ExitVoiceLines")
     SimulateVoiceLines(tmpRun, CurrentRun.CurrentRoom.ExitVoiceLines)
   elseif CurrentRun.CurrentRoom.Encounter.ExitVoiceLines ~= nil then
-    print("CurrentRun.CurrentRoom.Encounter.ExitVoiceLines")
     SimulateVoiceLines(tmpRun, CurrentRun.CurrentRoom.Encounter.ExitVoiceLines)
   else
     if RandomChance(0.17) then
       if GlobalVoiceLines.GeneralExitVoiceLines ~= nil then
-        print("GlobalVoiceLines.GeneralExitVoiceLines")
         SimulateVoiceLines(tmpRun, GlobalVoiceLines.GeneralExitVoiceLines)
       end
       if CurrentRun.Hero.Health <= 50 then
         if GlobalVoiceLines.HealthStatusPostExitVoiceLines ~= nil then
-          print("GlobalVoiceLines.HealthStatusPostExitVoiceLines")
           SimulateVoiceLines(tmpRun, GlobalVoiceLines.GeneralExitVoiceLines)
         end
       end
@@ -691,6 +694,7 @@ function PredictLoot(door)
   predictions.NextExitRewards = rewardsChosen
 
   -- Rerolls
+  TmpPlayingVoiceLines = {}
   if predictions.UpgradeOptions and lootName ~= "WeaponUpgrade" then
     predictions.UpgradeOptionsReroll = PredictUpgradeOptionsReroll(tmpRun, lootName, predictions.UpgradeOptions)
   end
