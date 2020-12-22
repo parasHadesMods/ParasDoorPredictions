@@ -79,7 +79,7 @@ ParasDoorPredictions.CurrentUses = 0
 
 local random = ModUtil.GetBaseBottomUpValues("RandomInit")
 
-ParasDoorPredictions.PrintRngUses = true
+ParasDoorPredictions.PrintRngUses = false
 local function printRngUse()
   local linesToSkip = 1
   local linesToPrint = 2
