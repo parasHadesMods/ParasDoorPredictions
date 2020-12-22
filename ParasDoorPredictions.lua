@@ -192,6 +192,7 @@ end)
 
 ParasDoorPredictions.IsVoiceLineEligible = CloneFunction(IsVoiceLineEligible, function(env, func)
   env.CheckCooldown = CheckCooldownNoTrigger
+  env.SpeechRecord = TmpSpeechRecord
   return func
 end)
 
@@ -327,6 +328,7 @@ ParasDoorPredictions.RarityColorMap = {
 
 TmpPlayedRandomLines = nil
 TmpPlayingVoiceLines = {}
+TmpSpeechRecord = {}
 -- like PlayVoiceLines, but assumes neverQueue = true
 -- and args = nil, which is how it's called in LeaveRoomAudio
 function SimulateVoiceLines(run, voiceLines)
@@ -355,13 +357,16 @@ function SimulateVoiceLines(run, voiceLines)
       return -- assuming neverQueue
     end
   end
-  TmpPlayingVoiceLines[source] = true
   -- PlayVoiceLine, including sublines
-  TmpPlayedRandomLines = DeepCopyTable(PlayedRandomLines)
-  SimulateVoiceLine(run, voiceLines, source)
+  TmpPlayingVoiceLines[source] = SimulateVoiceLine(run, voiceLines, source)
 end
 
-function SimulateVoiceLine(run, line, source)
+function SimulateVoiceLine(run, line, source, args)
+  local playedSomething = false
+
+  args = args or {}
+  args.BreakIfPlayed = line.BreakIfPlayed or args.BreakIfPlayed
+
   source = GetLineSource(line, source)
   if source == nil then
     return
@@ -369,7 +374,11 @@ function SimulateVoiceLine(run, line, source)
   if line.Cue ~= nil then
     -- no effect on rng
     -- assume success
-    return true
+    TmpSpeechRecord[line.Cue] = true
+    playedSomething = true
+    if args.BreakIfPlayed then
+      return playedSomething
+    end
   end
   if line.RandomRemaining then
     local eligibleUnplayedLines = {}
@@ -389,26 +398,37 @@ function SimulateVoiceLine(run, line, source)
         for k, subLine in ipairs(line) do
           TmpPlayedRandomLines[subLine.Cue] = nil
         end
+        print("turn the record over")
         randomLine = GetRandomValue( allEligibleLines )
+        print(randomLine.Cue)
       else
         randomLine = GetRandomValue( eligibleUnplayedLines )
       end
       TmpPlayedRandomLines[randomLine.Cue] = true
-      if SimulateVoiceLine(run, randomLine, source) then
-        return true
+      local subLineArgs = ShallowCopyTable(args)
+      if SimulateVoiceLine(run, randomLine, source, sublineArgs) then
+        playedSomething = true
+        if args.BreakIfPlayed or randomLine.BreakIfPlayed or subLineArgs.BreakIfPlayed then
+
+          return playedSomething
+        end
       end
     end
   else
     for k, subLine in ipairs( line ) do
       if ParasDoorPredictions.IsVoiceLineEligible(run, subLine, nil, line, source) then
-        if SimulateVoiceLine(run, subLine, source) then
-          return true
+        local subLineArgs = ShallowCopyTable(args)
+        if SimulateVoiceLine(run, subLine, source, subLineArgs) then
+          playedSomething = true
+          if args.BreakIfPlayed or subLine.BreakIfPlayed or subLineArgs.BreakIfPlayed then
+            return playedSomething
+          end
         end
       end
     end
   end
   
-  return false
+  return playedSomething
 end
 
 function PredictUpgradeOptions(run, lootName)
@@ -502,6 +522,8 @@ function PredictLoot(door)
   -- playing voice lines during the leave room presentation is threaded, so if one SimulateVoiceLine call
   -- sets a source to playing, it will affect the subsequent ones
   TmpPlayingVoiceLines = {}
+  TmpPlayedRandomLines = DeepCopyTable(PlayedRandomLines)
+  TmpSpeechRecord = DeepCopyTable(SpeechRecord)
   if exitFunctionName == "AsphodelLeaveRoomPresentation" then
     if CurrentRun.CurrentRoom.ExitVoiceLines ~= nil then
       SimulateVoiceLines(tmpRun, CurrentRun.CurrentRoom.ExitVoiceLines)
