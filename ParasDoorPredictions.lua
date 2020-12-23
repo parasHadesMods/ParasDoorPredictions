@@ -900,6 +900,9 @@ end
 
 OnControlPressed { config.Control,
   function (triggerArgs)
+    if GetNumMetaUpgrades("DoorHealMetaUpgrade") > 0 then
+      return ModUtil.Hades.PrintOverhead("Please disable Chthonic Vitality, it causes predictions to be incorrect.")
+    end
     local rngUses = ParasDoorPredictions.CurrentUses
     if ParasDoorPredictions.Enabled and (ParasDoorPredictions.Dirty or rngUses ~= ParasDoorPredictions.LastUpdateRngUses) then
       ParasDoorPredictions.Dirty = false
