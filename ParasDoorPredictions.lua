@@ -199,8 +199,12 @@ end)
 
 ParasDoorPredictions.IsVoiceLineEligible = CloneFunction(IsVoiceLineEligible, function(env, func)
   env.CheckCooldown = ParasDoorPredictions.CheckCooldown
-  return function(...)
-    env.SpeechRecord = TmpSpeechRecord
+  return func
+end)
+
+ParasDoorPredictions.FillInShopOptions = CloneFunction(FillInShopOptions, function(env, func)
+  return function(run, ...)
+    env.CurrentRun = run
     return func(...)
   end
 end)
@@ -337,7 +341,6 @@ ParasDoorPredictions.RarityColorMap = {
 
 TmpPlayedRandomLines = nil
 TmpPlayingVoiceLines = {}
-TmpSpeechRecord = {}
 TmpGlobalCooldowns = {}
 -- like PlayVoiceLines, but assumes neverQueue = true
 -- and args = nil, which is how it's called in LeaveRoomAudio
@@ -384,7 +387,6 @@ function SimulateVoiceLine(run, line, source, args)
   if line.Cue ~= nil then
     -- no effect on rng
     -- assume success
-    TmpSpeechRecord[line.Cue] = true
     run.SpeechRecord[line.Cue] = true
     playedSomething = true
     if args.BreakIfPlayed then
@@ -529,7 +531,6 @@ function PredictLoot(door)
   local exitFunctionName = CurrentRun.CurrentRoom.ExitFunctionName or door.ExitFunctionName or "LeaveRoomPresentation"
   TmpPlayingVoiceLines = {}
   TmpPlayedRandomLines = DeepCopyTable(PlayedRandomLines)
-  TmpSpeechRecord = DeepCopyTable(SpeechRecord)
   TmpGlobalCooldowns = DeepCopyTable(GlobalCooldowns)
   if exitFunctionName == "AsphodelLeaveRoomPresentation" then
     if CurrentRun.CurrentRoom.ExitVoiceLines ~= nil then
@@ -573,12 +574,13 @@ function PredictLoot(door)
   end
   predictions.Encounter = tmpRoom.Encounter
   -- RunShopGeneration
+  tmpRun.CurrentRoom = tmpRoom
   -- generate shop, if necessary
   local hasWellShop = false
   if IsWellShopEligible(tmpRun, tmpRoom) then
     hasWellShop = true
     tmpRun.LastWellShopDepth = currentRun.RunDepthCache
-    tmpRoom.Store = FillInShopOptions({ StoreData = StoreData.RoomShop, RoomName = tmpRoom.Name })
+    tmpRoom.Store = ParasDoorPredictions.FillInShopOptions(tmpRun, { StoreData = StoreData.RoomShop, RoomName = tmpRoom.Name })
     predictions.StoreOptions = tmpRoom.Store.StoreOptions
   end
   local challengeSwitchBaseCount = ParasDoorPredictions.ChallengeSwitchBaseCount[tmpRoom.Name] or 0
@@ -589,7 +591,7 @@ function PredictLoot(door)
     predictions.StoreOptions = nil
   end
   if tmpRoom.ChosenRewardType == "Shop" then
-    tmpRoom.Store = FillInShopOptions({ StoreData = StoreData.WorldShop, RoomName = tmpRoom.Name })
+    tmpRoom.Store = ParasDoorPredictions.FillInShopOptions(tmpRun, { StoreData = StoreData.WorldShop, RoomName = tmpRoom.Name })
     predictions.StoreOptions = tmpRoom.Store.StoreOptions
   end
   -- Determine the seed of the next room, which we will use for predicting
@@ -600,7 +602,6 @@ function PredictLoot(door)
 
   -- Predict boon or chaos reward
   NextSeeds[1] = seed
-  tmpRun.CurrentRoom = tmpRoom
   if lootName ~= nil then
     predictions["UpgradeOptions"] = PredictUpgradeOptions(tmpRun, lootName) -- calls RandomSynchronize
   end
