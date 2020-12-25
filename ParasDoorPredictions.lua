@@ -131,7 +131,9 @@ end)
 ModUtil.WrapBaseFunction("RandomSynchronize", function(baseFunc, offset, rngId)
   local previousPrintState = ParasDoorPredictions.PrintRngUses
   ParasDoorPredictions.PrintRngUses = false
-  print("RandomSynchronize", offset)
+  if previousPrintState then
+    print("RandomSynchronize", offset)
+  end
   baseFunc(offset, rngId)
   ParasDoorPredictions.PrintRngUses = previousPrintState
 end)
@@ -213,7 +215,9 @@ end)
 ParasDoorPredictions.OverrideExitCount = {
   RoomSecret01 = 2,
   RoomSecret02 = 3,
-  RoomSecret03 = 1
+  RoomSecret03 = 1,
+  C_MiniBoss02 = 2,
+  C_Reprieve01 = 2
 }
 
 ParasDoorPredictions.SecretPointCount = {
@@ -626,6 +630,11 @@ function PredictLoot(door)
     end
   end
   -- StartRoom()
+  if tmpRun.CurrentRoom.WingRoom then
+     tmpRun.WingDepth = (tmpRun.WingDepth or 0) + 1
+  else
+     tmpRun.WingDepth = 0
+  end
   local runForWellPrediction = RunWithUpdatedHistory(tmpRun)
   local exitRooms = {}
   -- Predict if the room's exit doors will be blue or gold leaf.
@@ -801,10 +810,10 @@ function ShowEncounter(annotation, encounter)
   end
 
   if Contains(EncounterSets.ThanatosEncounters, encounter.Name) then
-    AddLine(annotation, "Thanatos")
+    AddLine(annotation, "Thanatos", {Color = Color.Yellow})
   end
   if encounter.Name == "SurvivalTartarus" then
-    AddLine(annotation, "Survival")
+    AddLine(annotation, "Survival", {Color = Color.Yellow})
   end
   if config.ShowEnemies and encounter.SpawnWaves ~= nil then
     for i, wave in pairs(encounter.SpawnWaves) do
