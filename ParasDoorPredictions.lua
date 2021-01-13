@@ -782,7 +782,7 @@ function ShowStoreOptions(annotation, storeOptions)
         AddLine(annotation, text, {LuaKey = "ForceLootName", LuaValue = item.Args.ForceLootName})
         for id, choice in pairs(item.Args.UpgradeOptions) do
           local color = ParasDoorPredictions.RarityColorMap[choice.Rarity]
-          AddLine(annotation, choice.ItemName, color)
+          AddLine(annotation, choice.ItemName, {Color = color})
         end
       else
         AddLine(annotation, ParasDoorPredictions.StoreDropNames[item.Name] or item.Name)
