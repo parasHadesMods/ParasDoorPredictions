@@ -216,6 +216,7 @@ ParasDoorPredictions.OverrideExitCount = {
   RoomSecret01 = 2,
   RoomSecret02 = 3,
   RoomSecret03 = 1,
+  B_Combat10 = 2,
   C_MiniBoss02 = 2,
   C_Reprieve01 = 2
 }
@@ -528,8 +529,10 @@ function PredictLoot(door)
     CoinFlip(rng) -- SacrificeHealth
     -- SecretDoorUsedPresentation
     CoinFlip(rng) -- PlayVoiceLine
-    CoinFlip(rng) -- DisplayPlayerDamageText
-    CoinFlip(rng) -- DisplayPlayerDamageText
+    if door.HealthCost > 0 then
+      CoinFlip(rng) -- DisplayPlayerDamageText
+      CoinFlip(rng) -- DisplayPlayerDamageText
+    end
   end
   -- 2. Simulate LeaveRoomPresentation, playing voice lines etc.
   local exitFunctionName = CurrentRun.CurrentRoom.ExitFunctionName or door.ExitFunctionName or "LeaveRoomPresentation"
@@ -823,8 +826,12 @@ function ShowEncounter(annotation, encounter)
         if waveString ~= "" then
           waveString = waveString .. ", "
         end
+        local name = spawn.Name:gsub("Elite$", "")
+        if name ~= spawn.Name then
+          waveString = waveString .. "Dire "
+        end
         waveString = waveString .. "{$Spawns[" .. j .. "]}"
-        table.insert(spawns, spawn.Name)
+        table.insert(spawns, name)
       end
       AddLine(annotation, waveString, {LuaKey = "Spawns", LuaValue = spawns})
     end
