@@ -218,7 +218,8 @@ ParasDoorPredictions.OverrideExitCount = {
   RoomSecret03 = 1,
   B_Combat10 = 2,
   C_MiniBoss02 = 2,
-  C_Reprieve01 = 2
+  C_Reprieve01 = 2,
+  D_Hub = 5
 }
 
 ParasDoorPredictions.SecretPointCount = {
@@ -598,7 +599,7 @@ function PredictLoot(door)
     predictions.StoreOptions = nil
   end
   if tmpRoom.ChosenRewardType == "Shop" then
-    tmpRoom.Store = ParasDoorPredictions.FillInShopOptions(tmpRun, { StoreData = StoreData.WorldShop, RoomName = tmpRoom.Name })
+    tmpRoom.Store = ParasDoorPredictions.FillInShopOptions(tmpRun, { StoreData = StoreData[tmpRoom.StoreDataName or "WorldShop"], RoomName = tmpRoom.Name })
     predictions.StoreOptions = tmpRoom.Store.StoreOptions
   end
   -- Determine the seed of the next room, which we will use for predicting
@@ -671,6 +672,17 @@ function PredictLoot(door)
       -- if any room is forced to give eg. a gold leaf,
       -- then all of them will.
       rewardStoreName = exitRoom.ForcedRewardStore
+    end
+  end
+  -- upgrade styx miniboss doors
+  if tmpRoom.FirstAppearanceNumExitOverrides ~= nil and not HasSeenRoomEarlierInRun(tmpRun, tmpRoom.Name) then
+    local randomRooms = ShallowCopyTable(exitRooms)
+    for i = 1, tmpRoom.FirstAppearanceNumExitOverrides do
+      local randomRoom = RemoveRandomValue( randomRooms )
+      randomRoom.UseOptionalOverrides = true
+      for k,v in pairs( randomRoom.OptionalOverrides ) do
+        randomRoom[k] = v
+      end
     end
   end
   local rewardsChosen = {}
