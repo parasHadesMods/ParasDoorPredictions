@@ -33,6 +33,10 @@ local config = {
   ShowRoomNames = false
 }
 
+if ModConfigMenu then
+  ModConfigMenu.Register(config)
+end
+
 ParasDoorPredictions.Config = config
 ParasDoorPredictions.Doors = {}
 ParasDoorPredictions.Dirty = false
@@ -77,7 +81,8 @@ end, ParasDoorPredictions)
 ParasDoorPredictions.CurrentSeed = 0
 ParasDoorPredictions.CurrentUses = 0
 
-local random = ModUtil.GetBaseBottomUpValues("RandomInit")
+local random = ModUtil.UpValues(
+  ModUtil.GetOriginalBaseValue("RandomInit"))
 
 ParasDoorPredictions.PrintRngUses = false
 local function printRngUse()
