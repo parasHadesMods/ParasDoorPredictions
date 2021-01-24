@@ -674,7 +674,16 @@ function PredictLoot(door)
     table.insert(exitRooms, exitRoom)
   end
   if shrinePointRoom then
-    table.insert(exitRooms, shrinePointRoom)
+    -- exits are sorted by the name of door, which start with the name of the biome
+    -- ie. TartarusDoor03b, AsphodelBoat01b, ElysiumExitDoor
+    -- or ShrinePointDoor for Erebus gates
+    if tmpRun.RunDepthCache > 12 then
+      -- in Asphodel and Elysium, Erebus gates come last
+      table.insert(exitRooms, shrinePointRoom)
+    else
+      -- in Tartarus, Erebus gates come first
+      table.insert(exitRooms, 1, shrinePointRoom)
+    end
   end
   for i, exitRoom in pairs(exitRooms) do
     if exitRoom.ForcedRewardStore ~= nil then
