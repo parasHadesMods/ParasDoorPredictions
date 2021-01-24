@@ -17,6 +17,7 @@ Currently shows:
 ModUtil.RegisterMod("ParasDoorPredictions")
 
 local config = {
+  ModName = "Para's Door Predictions",
   Control = "Gift",
   ShowRewardType = true,
   ShowChaosGates = true,
@@ -646,6 +647,7 @@ function PredictLoot(door)
   end
   local runForWellPrediction = RunWithUpdatedHistory(tmpRun)
   local exitRooms = {}
+  local shrinePointRoom = nil
   -- Predict if the room's exit doors will be blue or gold leaf.
   local rewardStoreName = ChooseNextRewardStore(tmpRun) -- calls RandomSynchronize
   -- DoUnlockRoomExits()
@@ -660,9 +662,8 @@ function PredictLoot(door)
     local shrinePointRoomName = GetRandomValue(shrinePointRoomOptions)
     local shrinePointRoomData = RoomSetData.Base[shrinePointRoomName]
     if shrinePointRoomData ~= nil then
-      local shrinePointRoom = ParasDoorPredictions.CreateRoom(tmpRun, shrinePointRoomData, { SkipChooseReward = true })
+      shrinePointRoom = ParasDoorPredictions.CreateRoom(tmpRun, shrinePointRoomData, { SkipChooseReward = true })
       shrinePointRoom.NeedsReward = true
-      table.insert(exitRooms, shrinePointRoom)
     end
   end
   RandomSynchronize()
@@ -671,6 +672,9 @@ function PredictLoot(door)
     local roomData = ChooseNextRoomData(tmpRun)
     local exitRoom = ParasDoorPredictions.CreateRoom(tmpRun, roomData, { SkipChooseReward = true, SkipChooseEncounter = true})
     table.insert(exitRooms, exitRoom)
+  end
+  if shrinePointRoom then
+    table.insert(exitRooms, shrinePointRoom)
   end
   for i, exitRoom in pairs(exitRooms) do
     if exitRoom.ForcedRewardStore ~= nil then
