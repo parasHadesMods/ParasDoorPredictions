@@ -471,7 +471,16 @@ function SimulateVoiceLine(run, line, source, args)
 end
 
 function PredictUpgradeOptions(run, lootName)
-  RandomSynchronize()
+  if run.CurrentRoom.Encounter == nil or run.CurrentRoom.Encounter.EncounterType == "NonCombat" then
+    RandomSynchronize()
+  else
+    local rewardCount = run.LootTypeHistory[lootName] or 0
+    -- the game will synchronize to rewardCount + 1, we add
+    -- an extra increment to account for choosing the flavor
+    -- text at the top of the boon menu which is done before
+    -- choosing rewards
+    RandomSynchronize(rewardCount + 2)
+  end
   local lootData = LootData[lootName]
   local loot = DeepCopyTable(lootData)
   loot.RarityChances = ParasDoorPredictions.GetRarityChances(run, loot)
@@ -495,7 +504,7 @@ function PredictUpgradeOptionsReroll(run, lootName, previousOptions)
   local lootData = LootData[lootName]
   local loot = DeepCopyTable(lootData)
   loot.RarityChances = ParasDoorPredictions.GetRarityChances(run, loot)
-  SetTraitsOnLoot(loot, { ExclusionNames = { GetRandomValue( previousOptions) } })
+  SetTraitsOnLoot(loot, { ExclusionNames = { GetRandomValue( itemNames ) } })
   return loot.UpgradeOptions
 end
 
