@@ -27,7 +27,7 @@ local config = {
   ShowWellShops = true,
   ShowStoreOptions = true,
   ShowUpgradeOptions = true,
-  ShowRerolls = false,
+  ShowRerolls = true,
   ShowExits = true,
   ShowEncounters = true,
   ShowEnemies = true,
@@ -75,7 +75,9 @@ end, ParasDoorPredictions)
 ModUtil.WrapBaseFunction("RandomSetNextInitSeed", function(baseFunc, args)
   ParasDoorPredictions.Clear()
   baseFunc(args)
-  print("RandomSetNextInitSeed:", ParasDoorPredictions.CurrentUses, NextSeeds[1])
+  if ParasDoorPredictions.PrintRngUses then
+    print("RandomSetNextInitSeed:", ParasDoorPredictions.CurrentUses, NextSeeds[1])
+  end
 end, ParasDoorPredictions)
 
 -- track rng uses
@@ -205,8 +207,23 @@ ParasDoorPredictions.CheckCooldown = CloneFunction(CheckCooldown, function(env, 
   end
 end)
 
+TmpActiveScreens = {}
+function ParasDoorPredictions.IsScreenOpen( flag )
+  if TmpActiveScreens[flag] ~= nil then
+    return true
+  else
+    return IsScreenOpen( name )
+  end
+end
+
+ParasDoorPredictions.IsGameStateEligible = CloneFunction(IsGameStateEligible, function(env, func)
+  env.IsScreenOpen = ParasDoorPredictions.IsScreenOpen
+  return func
+end)
+
 ParasDoorPredictions.IsVoiceLineEligible = CloneFunction(IsVoiceLineEligible, function(env, func)
   env.CheckCooldown = ParasDoorPredictions.CheckCooldown
+  env.IsGameStateEligible = ParasDoorPredictions.IsGameStateEligible
   return func
 end)
 
@@ -356,7 +373,7 @@ TmpPlayingVoiceLines = {}
 TmpGlobalCooldowns = {}
 -- like PlayVoiceLines, but assumes neverQueue = true
 -- and args = nil, which is how it's called in LeaveRoomAudio
-function SimulateVoiceLines(run, voiceLines)
+function SimulateVoiceLines(run, voiceLines, args)
   if voiceLines == nil then
     print("SimulateVoiceLines: voiceLines == nil")
     return
@@ -383,7 +400,7 @@ function SimulateVoiceLines(run, voiceLines)
     end
   end
   -- PlayVoiceLine, including sublines
-  TmpPlayingVoiceLines[source] = SimulateVoiceLine(run, voiceLines, source)
+  TmpPlayingVoiceLines[source] = SimulateVoiceLine(run, voiceLines, source, args)
 end
 
 function SimulateVoiceLine(run, line, source, args)
@@ -464,7 +481,13 @@ end
 
 function PredictUpgradeOptionsReroll(run, lootName, previousOptions)
   RandomSynchronize(run.NumRerolls - 1)
-  SimulateVoiceLines(run, HeroVoiceLines.UsedRerollPanelVoiceLines)
+  local oldBoonMenu = TmpActiveScreens["BoonMenu"]
+  TmpActiveScreens["BoonMenu"] = true
+  -- these voice lines play on a thread, and are long enough
+  -- so that once one plays, the subsequent ones don't affect
+  -- the rerolled rewards, so we break once one starts
+  SimulateVoiceLines(run, HeroVoiceLines.UsedRerollPanelVoiceLines, { BreakIfPlayed = true })
+  TmpActiveScreens["BoonMenu"] = oldBoonMenu
   local itemNames = {}
   for i, value in pairs(previousOptions) do
     table.insert( itemNames, value.ItemName)
