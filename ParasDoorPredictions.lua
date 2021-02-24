@@ -470,11 +470,51 @@ function SimulateVoiceLine(run, line, source, args)
   return playedSomething
 end
 
+function PredictApprovalProcess(loot)
+
+  local blockedIndexes = {}
+  for i = 1, TableLength(loot.UpgradeOptions) do
+    table.insert( blockedIndexes, i )
+  end
+  for i = 1, CalcNumLootChoices() do
+    RemoveRandomValue( blockedIndexes )
+  end
+
+  -- Sort traits in the following order: Melee, Secondary, Rush, Range
+  table.sort(loot.UpgradeOptions, function (x, y)
+    local slotToInt = function( slot )
+      if slot ~= nil then
+        local slotType = slot.Slot
+
+        if slotType == "Melee" then
+          return 0
+        elseif slotType == "Secondary" then
+          return 1
+        elseif slotType == "Ranged" then
+          return 2
+        elseif slotType == "Rush" then
+          return 3
+        elseif slotType == "Shout" then
+          return 4
+        end
+      end
+      return 99
+    end
+    return slotToInt(TraitData[x.ItemName]) < slotToInt(TraitData[y.ItemName])
+  end)
+
+  for itemIndex, itemData in ipairs( loot.UpgradeOptions ) do
+    if Contains( blockedIndexes, itemIndex ) then
+      itemData.Blocked = true
+    end
+  end
+end
+
 function PredictUpgradeOptions(run, lootName)
+  local rewardCount = run.LootTypeHistory[lootName] or 0
   if run.CurrentRoom.Encounter == nil or run.CurrentRoom.Encounter.EncounterType == "NonCombat" then
     RandomSynchronize()
   else
-    local rewardCount = run.LootTypeHistory[lootName] or 0
     -- the game will synchronize to rewardCount + 1, we add
     -- an extra increment to account for choosing the flavor
     -- text at the top of the boon menu which is done before
@@ -485,6 +525,11 @@ function PredictUpgradeOptions(run, lootName)
   local loot = DeepCopyTable(lootData)
   loot.RarityChances = ParasDoorPredictions.GetRarityChances(run, loot)
   SetTraitsOnLoot(loot)
+  if run.CurrentRoom.Encounter == nil or run.CurrentRoom.Encounter.EncounterType == "NonCombat" then
+    -- the calculation for Approval Process runs when you open the menu, even in non-combat rooms
+    RandomSynchronize(rewardCount + 2)
+  end
+  PredictApprovalProcess(loot)
   return loot.UpgradeOptions
 end
 
@@ -505,6 +550,7 @@ function PredictUpgradeOptionsReroll(run, lootName, previousOptions)
   local loot = DeepCopyTable(lootData)
   loot.RarityChances = ParasDoorPredictions.GetRarityChances(run, loot)
   SetTraitsOnLoot(loot, { ExclusionNames = { GetRandomValue( itemNames ) } })
+  PredictApprovalProcess(loot)
   return loot.UpgradeOptions
 end
 
@@ -864,6 +910,9 @@ function ShowUpgradeOptions(annotation, upgradeOptions)
         upgradeOptionString = "{$Choice.SecondaryItemName} " .. upgradeOptionString
       end
       local color = ParasDoorPredictions.RarityColorMap[choice.Rarity]
+      if choice.Blocked then
+         color = Color.Red
+      end
       AddLine(annotation, upgradeOptionString, {Color = color, LuaKey="Choice", LuaValue=choice})
     end
   end
