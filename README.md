@@ -13,6 +13,4 @@ Non-goals:
  - compatibility with gameplay mods
 
 To install, git clone into your Mods directory and run modimporter.py.
-Requires ModUtil. 
-
-For now, the focus is on any heat runs, so accurate handling of Approval Process and other high-heat specific modifiers is not a priority. PRs that add these feature would be welcome.
+Requires ModUtil.
