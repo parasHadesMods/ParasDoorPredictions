@@ -711,7 +711,6 @@ function PredictLoot(door)
         RandomSynchronize()
         item.Args["ForceLootName"] = GetRandomValue(eligibleLootNames)
       end
-    
       if item.Args.ForceLootName ~= nil then
         item.Args["UpgradeOptions"] = PredictUpgradeOptions(tmpRun, item.Args.ForceLootName) -- calls RandomSynchronize()
       end
@@ -893,6 +892,9 @@ function ShowStoreOptions(annotation, storeOptions)
         AddLine(annotation, text, {LuaKey = "ForceLootName", LuaValue = item.Args.ForceLootName})
         for id, choice in pairs(item.Args.UpgradeOptions) do
           local color = ParasDoorPredictions.RarityColorMap[choice.Rarity]
+          if choice.Blocked then
+            color = Color.Red
+          end
           AddLine(annotation, choice.ItemName, {Color = color})
         end
       else
@@ -1005,7 +1007,7 @@ function ShowDoorPreview(annotation, door)
   if config.ShowStoreOptions and predictions.StoreOptions ~= nil then
     ShowStoreOptions(annotation, predictions.StoreOptions)
     if config.ShowRerolls and predictions.StoreOptionsReroll ~= nil then
-      AddLine(annotation, "Reroll")
+      AddLine(annotation, "RerollPanel")
       ShowStoreOptions(annotation, predictions.StoreOptionsReroll)
     end
   end
@@ -1018,7 +1020,7 @@ function ShowDoorPreview(annotation, door)
   if config.ShowUpgradeOptions and predictions.UpgradeOptions ~= nil then
     ShowUpgradeOptions(annotation, predictions.UpgradeOptions)
     if config.ShowRerolls and predictions.UpgradeOptionsReroll ~= nil then
-      AddLine(annotation, "Reroll")
+      AddLine(annotation, "RerollPanel")
       ShowUpgradeOptions(annotation, predictions.UpgradeOptionsReroll)
     end
   end
