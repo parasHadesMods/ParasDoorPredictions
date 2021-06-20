@@ -826,9 +826,7 @@ function PredictLoot(door)
     end
   end
   local rewardsChosen = {}
-  print("Assign Rewards")
   for i, exitRoom in pairs(exitRooms) do
-    print(exitRoom.Name)
     local exitCanHaveSurvival = Contains(exitRoom.LegalEncounters, "SurvivalTartarus") and IsEncounterEligible(runForWellPrediction, exitRoom, EncounterData.SurvivalTartarus) and exitRoom.ChosenRewardType ~= "Devotion"
     local exitIsFountain = IsFountainRoom(exitRoom)
     local exitIsErebus = IsErebusRoom(exitRoom)
