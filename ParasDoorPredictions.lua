@@ -18,7 +18,6 @@ ModUtil.RegisterMod("ParasDoorPredictions")
 
 local config = {
   ModName = "Para's Door Predictions",
-  Control = "Gift",
   ShowRewardType = true,
   ShowChaosGates = true,
   ShowErebusGates = true,
@@ -31,11 +30,50 @@ local config = {
   ShowExits = true,
   ShowEncounters = true,
   ShowEnemies = true,
-  ShowRoomNames = false
+  ShowRoomNames = true,
+  ShowUsesButtons = true,
+  PrintRngUses = false,
+  PrintNextSeed = true
 }
 
 if ModConfigMenu then
   ModConfigMenu.Register(config)
+end
+
+-- Add +/- buttons while the boon details sidebar is open.
+-- We need normal combat input to be disabled or Zag will attack etc. while
+-- we're clicking, and break pots or otherwise mess up the RNG.
+ModUtil.WrapBaseFunction("CreatePrimaryBacking", function( baseFunc )
+  local components = ScreenAnchors.TraitTrayScreen.Components
+  if config.ShowUsesButtons then
+    components.UsesButtonPlus = CreateScreenComponent({
+      Name = "LevelUpArrowRight",
+      Scale = 1.5,
+      X = CombatUI.TraitUIStart + 300,
+      Y = 360,
+      Group = "Combat_Menu_TraitTray"
+    })
+    components.UsesButtonPlus.OnPressedFunctionName = "ParasDoorPredictions__OnUsesButtonPlus"
+    components.UsesButtonMinus = CreateScreenComponent({
+      Name = "LevelUpArrowLeft",
+      Scale = 1.5,
+      X = CombatUI.TraitUIStart + 300,
+      Y = 420,
+      Group = "Combat_Menu_TraitTray"
+    })
+    components.UsesButtonMinus.OnPressedFunctionName = "ParasDoorPredictions__OnUsesButtonMinus"
+  end
+  baseFunc()
+end)
+
+function ParasDoorPredictions__OnUsesButtonPlus(screen, button)
+  RandomSynchronize(ParasDoorPredictions.CurrentUses + 1)
+  UpdateRngDisplay()
+end
+
+function ParasDoorPredictions__OnUsesButtonMinus(screen, button)
+  RandomSynchronize(ParasDoorPredictions.CurrentUses - 1)
+  UpdateRngDisplay()
 end
 
 ParasDoorPredictions.Config = config
@@ -75,7 +113,7 @@ end, ParasDoorPredictions)
 ModUtil.WrapBaseFunction("RandomSetNextInitSeed", function(baseFunc, args)
   ParasDoorPredictions.Clear()
   baseFunc(args)
-  if ParasDoorPredictions.PrintRngUses then
+  if config.PrintNextSeed then
     print("RandomSetNextInitSeed:", ParasDoorPredictions.CurrentUses, NextSeeds[1])
   end
 end, ParasDoorPredictions)
@@ -87,12 +125,11 @@ ParasDoorPredictions.CurrentUses = 0
 local random = ModUtil.UpValues(
   ModUtil.GetOriginalBaseValue("RandomInit"))
 
-ParasDoorPredictions.PrintRngUses = false
 local function printRngUse()
   local linesToSkip = 1
   local linesToPrint = 2
   -- log which function caused this use of the RNG
-  if ParasDoorPredictions.PrintRngUses then
+  if config.PrintRngUses then
    local traceback = debug.traceback()
    for line in traceback:gmatch"[^\n]+" do
      if linesToSkip > 0 then
@@ -137,13 +174,13 @@ ModUtil.WrapFunction(random, {"Rng", "RandomGaussian"}, function(baseFunc, self)
 end)
 
 ModUtil.WrapBaseFunction("RandomSynchronize", function(baseFunc, offset, rngId)
-  local previousPrintState = ParasDoorPredictions.PrintRngUses
-  ParasDoorPredictions.PrintRngUses = false
+  local previousPrintState = config.PrintRngUses
+  config.PrintRngUses = false
   if previousPrintState then
     print("RandomSynchronize", offset)
   end
   baseFunc(offset, rngId)
-  ParasDoorPredictions.PrintRngUses = previousPrintState
+  config.PrintRngUses = previousPrintState
 end)
 
 -- For prediction, we often want to run a function "as if" a global table (eg. CurrentRun) is modified in a certain way.
@@ -243,6 +280,8 @@ ParasDoorPredictions.OverrideExitCount = {
   C_MiniBoss02 = 2,
   C_Reprieve01 = 2,
   C_Combat03 = 2,
+  C_Combat04 = 2,
+  C_Combat05 = 2,
   D_Hub = 5
 }
 
@@ -1029,21 +1068,21 @@ function ShowDoorPreview(annotation, door)
   ShowExits(annotation, predictions.NextExitRewards)
 end
 
-OnControlPressed { config.Control,
-  function (triggerArgs)
-    if GetNumMetaUpgrades("DoorHealMetaUpgrade") > 0 then
-      return ModUtil.Hades.PrintOverhead("Please disable Chthonic Vitality, it causes predictions to be incorrect.")
-    end
-    local rngUses = ParasDoorPredictions.CurrentUses
-    if ParasDoorPredictions.Enabled and (ParasDoorPredictions.Dirty or rngUses ~= ParasDoorPredictions.LastUpdateRngUses) then
-      ParasDoorPredictions.Dirty = false
-      ParasDoorPredictions.LastUpdateRngUses = rngUses
+function UpdateRngDisplay( triggerArgs )
+  if GetNumMetaUpgrades("DoorHealMetaUpgrade") > 0 then
+    return ModUtil.Hades.PrintOverhead("Please disable Chthonic Vitality, it causes predictions to be incorrect.")
+  end
+  local rngUses = ParasDoorPredictions.CurrentUses
+  if ParasDoorPredictions.Enabled and (ParasDoorPredictions.Dirty or rngUses ~= ParasDoorPredictions.LastUpdateRngUses) then
+    ParasDoorPredictions.Dirty = false
+    ParasDoorPredictions.LastUpdateRngUses = rngUses
 
-      for doorId, door in pairs(ParasDoorPredictions.Doors) do
-        ResetAnnotation(door.Annotation)
-        ShowDoorPreview(door.Annotation, door.Door)
-      end
+    for doorId, door in pairs(ParasDoorPredictions.Doors) do
+      ResetAnnotation(door.Annotation)
+      ShowDoorPreview(door.Annotation, door.Door)
     end
   end
-}
+end
+
+OnControlPressed { "Gift", UpdateRngDisplay }
 
