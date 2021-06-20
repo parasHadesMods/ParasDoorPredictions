@@ -811,9 +811,14 @@ function PredictLoot(door)
   end
   -- upgrade styx miniboss doors
   if tmpRoom.FirstAppearanceNumExitOverrides ~= nil and not HasSeenRoomEarlierInRun(tmpRun, tmpRoom.Name) then
-    local randomRooms = ShallowCopyTable(exitRooms)
+    local randomDoors = {}
+    for i, _ in ipairs(exitRooms) do
+      table.insert(randomDoors, i)
+    end
+
     for i = 1, tmpRoom.FirstAppearanceNumExitOverrides do
-      local randomRoom = RemoveRandomValue( randomRooms )
+      local randomDoor = RemoveRandomValue( randomDoors )
+      local randomRoom = exitRooms[randomDoor]
       randomRoom.UseOptionalOverrides = true
       for k,v in pairs( randomRoom.OptionalOverrides ) do
         randomRoom[k] = v
@@ -821,7 +826,9 @@ function PredictLoot(door)
     end
   end
   local rewardsChosen = {}
+  print("Assign Rewards")
   for i, exitRoom in pairs(exitRooms) do
+    print(exitRoom.Name)
     local exitCanHaveSurvival = Contains(exitRoom.LegalEncounters, "SurvivalTartarus") and IsEncounterEligible(runForWellPrediction, exitRoom, EncounterData.SurvivalTartarus) and exitRoom.ChosenRewardType ~= "Devotion"
     local exitIsFountain = IsFountainRoom(exitRoom)
     local exitIsErebus = IsErebusRoom(exitRoom)
@@ -848,6 +855,7 @@ function PredictLoot(door)
       ChaosGate = exitHasChaosGate,
       Erebus = exitIsErebus,
       CanHaveSurvival = exitCanHaveSurvival,
+      StyxMiniBoss = exitRoom.RequireWingEndMiniBoss,
       RoomName = exitRoom.Name
     })
   end
@@ -1026,6 +1034,9 @@ function ShowExits(annotation, nextExitRewards)
     end
     if config.ShowPossibleSurvival and reward.CanHaveSurvival then
       rewardString = rewardString .. " with possible survival"
+    end
+    if reward.StyxMiniBoss then
+      rewardString = rewardString .. " with MiniBoss"
     end
     rewardString = rewardString .. " (" .. reward.ExitCount .. " Exits)"
     AddLine(annotation, rewardString, {LuaKey = "Reward", LuaValue = reward})
