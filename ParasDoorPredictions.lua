@@ -716,7 +716,8 @@ function PredictLoot(door)
     predictions.StoreOptions = tmpRoom.Store.StoreOptions
   end
   local challengeSwitchBaseCount = ParasDoorPredictions.ChallengeSwitchBaseCount[tmpRoom.Name] or 0
-  if challengeSwitchBaseCount == 0 then
+  if challengeSwitchBaseCount == 0 or
+     (challengeSwitchBaseCount == 1 and IsChallengeSwitchEligible( tmpRun, challengeSwitchBaseCount ) ) then
     -- We run shop generation anyways to ensure that the rng is advanced correctly before seeding
     -- the next room. But only some rooms have spawn locations for a well shop.
     hasWellShop = false
@@ -833,6 +834,10 @@ function PredictLoot(door)
     local exitRoomExitCount = ExitCountForRoom(exitRoom)
     exitRoom.ChosenRewardType = ParasDoorPredictions.ChooseRoomReward(tmpRun, exitRoom, rewardStoreName, rewardsChosen, { PreviousRoom = tmpRoom }) -- calls RandomSynchronize(4)
     local exitChallengeSwitchBaseCount = ParasDoorPredictions.ChallengeSwitchBaseCount[exitRoom.Name] or 0
+    runForWellPrediction.CurrentRoom = exitRoom
+    if IsChallengeSwitchEligible( runForWellPrediction, exitChallengeSwitchBaseCount ) then
+      exitChallengeSwitchBaseCount = exitChallengeSwitchBaseCount - 1
+    end
     local exitHasWellShop = IsWellShopEligible(runForWellPrediction, exitRoom) and exitChallengeSwitchBaseCount > 0
     local exitSecretPointCount = ParasDoorPredictions.SecretPointCount[exitRoom.Name] or 0
     local exitHasChaosGate = exitSecretPointCount > 0 and IsSecretDoorEligible(runForWellPrediction, exitRoom)
