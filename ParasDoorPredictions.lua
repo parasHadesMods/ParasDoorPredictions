@@ -31,6 +31,7 @@ local config = {
   ShowEncounters = true,
   ShowEnemies = true,
   ShowRoomNames = true,
+  ShowCharonBag = true,
   ShowUsesButtons = true,
   PrintRngUses = false,
   PrintNextSeed = true
@@ -550,7 +551,9 @@ function PredictApprovalProcess(loot)
   end
 end
 
-function PredictUpgradeOptions(run, lootName)
+function PredictUpgradeOptions(run, lootName, args)
+  args = args or {}
+
   local rewardCount = run.LootTypeHistory[lootName] or 0
   if run.CurrentRoom.Encounter == nil or run.CurrentRoom.Encounter.EncounterType == "NonCombat" then
     RandomSynchronize()
@@ -563,13 +566,20 @@ function PredictUpgradeOptions(run, lootName)
   end
   local lootData = LootData[lootName]
   local loot = DeepCopyTable(lootData)
-  loot.RarityChances = ParasDoorPredictions.GetRarityChances(run, loot)
-  SetTraitsOnLoot(loot)
-  if run.CurrentRoom.Encounter == nil or run.CurrentRoom.Encounter.EncounterType == "NonCombat" then
-    -- the calculation for Approval Process runs when you open the menu, even in non-combat rooms
-    RandomSynchronize(rewardCount + 2)
+  if args.ForceCommon then
+    loot.RarityChances = {}
+    loot.ForceCommon = true
+  else
+    loot.RarityChances = ParasDoorPredictions.GetRarityChances(run, loot)
   end
-  PredictApprovalProcess(loot)
+  SetTraitsOnLoot(loot)
+  if not args.SpawnOnly then
+    if run.CurrentRoom.Encounter == nil or run.CurrentRoom.Encounter.EncounterType == "NonCombat" then
+      -- the calculation for Approval Process runs when you open the menu, even in non-combat rooms
+      RandomSynchronize(rewardCount + 2)
+    end
+    PredictApprovalProcess(loot)
+  end
   return loot.UpgradeOptions
 end
 
@@ -768,6 +778,36 @@ function PredictLoot(door)
   local shrinePointRoom = nil
   -- Predict if the room's exit doors will be blue or gold leaf.
   local rewardStoreName = ChooseNextRewardStore(tmpRun) -- calls RandomSynchronize
+  -- Predict if shop will have Charon's bag
+  if predictions.Encounter and predictions.Encounter.Name == "Shop" then
+    -- Simulate SpawnRoomReward, this happens during StartRoom for shops
+    if tmpRun.CurrentRoom.SpawnRewardGlobalVoiceLines ~= nil then
+      SimulateVoiceLines( tmpRun, GlobalVoiceLines[tmpRun.CurrentRoom.SpawnRewardGlobalVoiceLines] )
+    end
+    -- Simulate SpawnStoreItemsInWorld
+    local unsorted = DeepCopyTable( predictions.StoreOptions )
+    local sortedList = CollapseTableAsOrderedKeyValuePairs( unsorted )
+    for i, kvp in ipairs( sortedList ) do
+      local item = kvp.Value
+      if item.Name == "HermesUpgradeDrop" then
+        PredictUpgradeOptions(tmpRun, "HermesUpgrade", { SpawnOnly = true})
+      elseif item.Name == "StackUpgradeDrop" then
+        PredictUpgradeOptions(tmpRun, "StackUpgrade", { SpawnOnly = true, ForceCommon = true })
+      elseif item.Name == "WeaponUpgradeDrop" then
+        PredictUpgradeOptions(tmpRun, "WeaponUpgrade", { SpawnOnly = true})
+      elseif item.Type == "Consumable" then
+        -- do nothing
+      elseif item.Type == "Boon" then
+        PredictUpgradeOptions(tmpRun, item.Args.ForceLootName, { SpawnOnly = true })
+      end
+    end
+    -- 2 increments in ActivatePrePlaced
+    CoinFlip()
+    CoinFlip()
+    if RandomChance( 0.22 ) then
+      predictions.HasCharonBag = true
+    end
+  end
   -- DoUnlockRoomExits()
   if hasShrinePointDoor then
     RandomSynchronize(13)
@@ -1058,6 +1098,9 @@ function ShowDoorPreview(annotation, door)
     AddLine(annotation, rewardString, {LuaKey = "Room", LuaValue = door.Room})
   end
   local predictions = PredictLoot(door)
+  if config.ShowCharonBag and predictions.HasCharonBag then
+    AddLine(annotation, "Charon's Bag", { Color = Color.Yellow })
+  end
   if config.ShowStoreOptions and predictions.StoreOptions ~= nil then
     ShowStoreOptions(annotation, predictions.StoreOptions)
     if config.ShowRerolls and predictions.StoreOptionsReroll ~= nil then
