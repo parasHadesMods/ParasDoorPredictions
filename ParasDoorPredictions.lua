@@ -854,12 +854,12 @@ function PredictLoot(door)
   if tmpRoom.FirstAppearanceNumExitOverrides ~= nil and not HasSeenRoomEarlierInRun(tmpRun, tmpRoom.Name) then
     local randomDoors = {}
     for i, _ in ipairs(exitRooms) do
-      table.insert(randomDoors, i)
+      table.insert(randomDoors, { Name = "TravelDoor03", Index = i })
     end
 
     for i = 1, tmpRoom.FirstAppearanceNumExitOverrides do
       local randomDoor = RemoveRandomValue( randomDoors )
-      local randomRoom = exitRooms[randomDoor]
+      local randomRoom = exitRooms[randomDoor.Index]
       randomRoom.UseOptionalOverrides = true
       for k,v in pairs( randomRoom.OptionalOverrides ) do
         randomRoom[k] = v
