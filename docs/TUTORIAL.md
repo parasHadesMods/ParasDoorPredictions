@@ -108,10 +108,12 @@ Routing the First Path
 7. The preview text says the next room has a "Bother". This is also an acceptable enemy, so write down your room notes just like in step 4. Also note down the enemy that was in this room (Gigantic Vermin).
 8. Enter the next room by pressing Interact, then kill the bothers.
 9. Press "Gift" to display the room preview text.
-10. The room preview text says the next room has a "Bother", and also that the room after is `D_MiniBoss02`. We want the miniboss in room 4, so this is great! Take notes again as in step 7.
-11. Enter the next room by pressing interact, then kill the bothers.
-12. We know the next room is a miniboss, so we don't need to look at the preview. Just take notes as in step 7.
-13. Enter the miniboss and kill it! You have routed your first styx path.
+10. The room preview text says the next room has a "Bother", and also that the room after is `D_MiniBoss02`. This is the giant rat miniboss, which is both slow and dangerous, so we will avoid it.
+11. Press the Cast button, note that the RNG uses changes, count "1", and press "Gift" to refresh the preview text.
+12. Repeat step 11 until the preview text has `D_MiniBoss03`. This is the giant snakestone room, which is better, so we'll take it. Write down your room notes like in step 7.
+13. Enter the next room by pressing interact, then kill the enemies.
+14. Press Gift to show the reward preview. It says the enemy will be "Dire Snakestone" (so we know it's not the Tiny Vermin). Take notes as in step 7.
+15. Enter the miniboss and kill it! You have routed your first styx path.
 
 To test the route:
 1. Open the menu (default: "esc" on keyboard or "start" on controller) and select "Give Up".
@@ -128,3 +130,17 @@ Routing the Second Path
 1. Follow your route from the previous section to the miniboss room.
 2. Kill the miniboss and select the room reward (pom your cast).
 3. Take notes for this room like every other room (seed, uses, # of cast presses, enemy) and exit back to the styx hub.
+4. Dash to the Centaur Heart door, and press Gift to see the reward preview. The enemies (Satyr Cultist, Gigantic Vermin) are fine so take notes and enter by pressing Interact.
+5. Kill the enemies, press Gift to see the reward preview, notice it's Snakestone which is fine, take notes, and enter the next room.
+6. Kill the enemies, press Gift to see the reward preview. We are looking for the bottom line to start with `D_Reprieve01` which is the name of the Satyr Sack room. It does, and the enemies are also good! Take notes, and enter the next room.
+7. Kill the enemies, take your notes, then enter the next room. It should be the satyr sack, and you have successfully routed your first styx!
+
+To test the route:
+1. Open the menu (default: "esc" on keyboard or "start" on controller) and select "Give Up".
+2. Load the game in profile 4. You should be back at the start of the styx introduction room.
+3. For each room in your notes:
+ - kill any enemies (notice they're the same as they were the first time through)
+ - walk to the exit
+ - press cast the number of times the notes say to press cast
+ - enter the next room
+4. You should get the same enemies in each room as the first time, including the miniboss and the two-sack!
