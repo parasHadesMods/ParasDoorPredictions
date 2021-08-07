@@ -13,23 +13,23 @@ Setup
 2. Download the tutorial save file. (link)
 3. Find your save folder in the table below:
 
-  Platform | Store | Save Folder
-  ---------+-------+---------
-  PC       | Steam | 
-  PC       | Epic  | 
-  Mac      | Steam | 
-  Mac      | Epic  | ~/Library/Application Support/Supergiant Games/Hades
+|Platform | Store | Save Folder |
+|---------|-------|-------------|
+| PC      | Steam |             |
+| PC      | Epic  |             |
+| Mac     | Steam |             |
+| Mac     | Epic  | ~/Library/Application Support/Supergiant Games/Hades |
 
 4. Place the tutorial save file in the save folder.
 5. Download the Routing Modpack. (link)
 6. Find your game files folder in the table below:
  
-  Platform | Store | Game Files Folder
-  ---------+-------+---------
-  PC       | Steam | 
-  PC       | Epic  | 
-  Mac      | Steam | 
-  Mac      | Epic  | /Users/Shared/Epic\ Games/Hades/Game.macOS.app/Contents/Resources/Content
+| Platform | Store | Game Files Folder |
+|----------|-------|-------------------|
+| PC       | Steam |                   |
+| PC       | Epic  |                   |
+| Mac      | Steam |                   |
+| Mac      | Epic  | /Users/Shared/Epic\ Games/Hades/Game.macOS.app/Contents/Resources/Content |
 
 7. Unzip the Routing Modpack into the game files folder.
 8. Run modimporter.py to install the mods.
@@ -83,27 +83,27 @@ D_Mini14 Pom of Power with MiniBoss (1 Exits)
 12. Exit the styx introduction room and proceed into the styx hub by pressing the Interact button
     (default: "e" on keyboard or "right bumper" on controller)
 13. The chamber rewards should match your notes.
-14. You have successfully routed your first room!
+14. You have successfully routed your first room and manipulated RNG to get the rewards you want!
 
 To test the route:
 1. Open the menu (default: "esc" on keyboard or "start" on controller) and select "Give Up".
 2. Load the game in profile 4. You should be back at the start of the styx introduction room.
 3. Walk to the exit. Cast the number of times as written in your notes. Exit the introduction room.
 4. The chamber rewards should match your notes again.
-5. You have successfully completed your first routed room!
+5. You have successfully verified that your route works!
 
-Routing the First Path
-----------------------
-1. Follow your route from the previous section to the styx Hub. Dash over to the pom miniboss door.
+Routing the First Styx Path
+---------------------------
+1. Follow your route from the previous section to the styx hub. Dash over to the pom miniboss door.
 2. Press "Gift" to display the room preview.
 3. The preview text on the pom door should have "Gigantic Vermin" as the only enemy.
 4. This is an acceptable enemy, so write down the following notes:
  - the chamber number (39)
- - the current value of "RNG Seed: " (...)
+ - the current value of "RNG Seed: "
  - the current value of "RNG Uses: " (12)
  - the number of times you pressed cast in this room AFTER killing the enemies (0)
  - the room to take (Pom Miniboss)
-5. Enter the next room by pressing Interact, then kill the rats.
+5. Enter the next room by pressing Interact, then kill the giant rats.
 6. Press "Gift" to display the room preview text.
 7. The preview text says the next room has a "Bother". This is also an acceptable enemy, so write down your room notes just like in step 4. Also note down the enemy that was in this room (Gigantic Vermin).
 8. Enter the next room by pressing Interact, then kill the bothers.
