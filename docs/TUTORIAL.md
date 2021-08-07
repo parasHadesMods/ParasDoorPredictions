@@ -10,18 +10,18 @@ Setup
 -----
 
 1. Install Hades on your Mac or PC, from the Steam or the Epic store.
-2. Download the tutorial save file. (link)
+2. Download the tutorial [save file](https://github.com/parasHadesMods/ParasDoorPredictions/releases/download/v1.0.0/Profile4.sav)
 3. Find your save folder in the table below:
 
 |Platform | Store | Save Folder |
 |---------|-------|-------------|
-| PC      | Steam |             |
-| PC      | Epic  |             |
+| PC      | Steam | %USERPROFILE%\My Documents\Saved Games\Hades |
+| PC      | Epic  | %USERPROFILE%\My Documents\Saved Games\Hades |
 | Mac     | Steam |             |
 | Mac     | Epic  | ~/Library/Application Support/Supergiant Games/Hades |
 
-4. Place the tutorial save file in the save folder.
-5. Download the Routing Modpack. (link)
+4. Place the tutorial save file in the save folder. This will overwrite your save file in slot 4.
+5. Download the [Routing Modpack](https://github.com/parasHadesMods/ParasDoorPredictions/releases/download/v1.0.0/RoutingModpack_v1.0.0.zip)
 6. Find your game files folder in the table below:
  
 | Platform | Store | Game Files Folder |
@@ -29,11 +29,11 @@ Setup
 | PC       | Steam |                   |
 | PC       | Epic  |                   |
 | Mac      | Steam |                   |
-| Mac      | Epic  | /Users/Shared/Epic\ Games/Hades/Game.macOS.app/Contents/Resources/Content |
+| Mac      | Epic  | /Users/Shared/Epic Games/Hades/Game.macOS.app/Contents/Resources/Content |
 
 7. Unzip the Routing Modpack into the game files folder.
 8. Run modimporter.py to install the mods.
-9. Start Hades. Load the game in profile 4. This should put you in the styx introduction room (chamber 38), and there
+9. Start Hades. Load the game in slot 4. This should put you in the styx introduction room (chamber 38), and there
    should be text in the top-right of the screen that says "RNG Seed: 996914823" and "RNG Uses: 7".
 
 Routing the Styx Rewards
