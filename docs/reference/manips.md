@@ -3,26 +3,26 @@ RNG Manipulations
 
 Cast
 ----
-One RNG increment occurs when the bloodstone from Zagreus's cast is dropped on the ground. This roll determines the amount
+* One RNG increment occurs when the bloodstone from Zagreus's cast is dropped on the ground. This roll determines the amount
 of upward force applied to the bloodstone (ie. how high it will bounce).
-An additional RNG increment is applied when the bloodstone drops on the ground if the cast is Poseidon's cast or if the cast
+* An additional RNG increment is applied when the bloodstone drops on the ground if the cast is Poseidon's cast or if the cast
 is from Beowulf shield. This roll determines the amount of horizontal force applied to the bloodstone (ie. how much
 horizontal distance it will bounce).
-An additional RNG increment is applied when the bloodstone drops on the ground if the cast is from Beowulf shield. This roll
+* An additional RNG increment is applied when the bloodstone drops on the ground if the cast is from Beowulf shield. This roll
 determines the angle at which the bloodstone will be ejected.
 
 Cast Loading
 ------------
-One RNG increment occurs when a cast is loaded into Beowulf or Hera. This roll is part of determining if a voice line is
+* One RNG increment occurs when a cast is loaded into Beowulf or Hera. This roll is part of determining if a voice line is
 eligible to play.
-An additionanl RNG increment is applied if a voice line actually plays, to select the voice line. This is a 5% chance and
+* An additionanl RNG increment is applied if a voice line actually plays, to select the voice line. This is a 5% chance and
 there is a 200s cooldown (see HeroData.LoadingAmmoVoiceLines).
 
 Summon
 ------
-Up to two RNG increments can happen when Zagreus attempts to summon his assist.
-The first roll is part of determining if a voice line is eligible to play, and always occurs immediately.
-The second roll chooses which eligible voice line to play. This one only occurs if a voice line is actually played. There is
+Up to two RNG increments can happen when Zagreus attempts to summon his assist:
+* The first roll is part of determining if a voice line is eligible to play, and always occurs immediately.
+* The second roll chooses which eligible voice line to play. This one only occurs if a voice line is actually played. There is
 a 10 second cooldown on these voice lines; while it's running only one increment (for the first roll) will occur. The second
 increment can also be blocked if the voice line can't play for some other reason (eg. Zag is saying something else).
 
@@ -55,6 +55,6 @@ insufficient rerolls remaining. This voice line is on a 7 second cooldown (see H
 
 Pots
 ----
-One RNG increment occurs when Zagreus breaks a pot. This roll determines whether the pot will drop money (0% chance for normal pot,100% chance for gold pot).
-Additional RNG increments due to voice lines occur when you break pots in shops or Sisyphus' room (see GlobalVoiceLines.BreakableDestroyedVoiceLines).
-Additional RNG increments due to voice lines occur when you break gold pots (see GlobalVoiceLines.BreakableHighValueDestroyedVoiceLines).
+* One RNG increment occurs when Zagreus breaks a pot. This roll determines whether the pot will drop money (0% chance for normal pot,100% chance for gold pot).
+* Additional RNG increments due to voice lines occur when you break pots in shops or Sisyphus' room (see GlobalVoiceLines.BreakableDestroyedVoiceLines).
+* Additional RNG increments due to voice lines occur when you break gold pots (see GlobalVoiceLines.BreakableHighValueDestroyedVoiceLines).
