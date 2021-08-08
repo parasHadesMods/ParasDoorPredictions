@@ -20,11 +20,13 @@ there is a 200s cooldown (see HeroData.LoadingAmmoVoiceLines).
 
 Summon
 ------
-Up to two RNG increments can happen when Zagreus attempts to summon his assist:
+Up to three RNG increments can happen when Zagreus attempts to summon his assist and fail:
 * The first roll is part of determining if a voice line is eligible to play, and always occurs immediately.
 * The second roll chooses which eligible voice line to play. This one only occurs if a voice line is actually played. There is
 a 10 second cooldown on these voice lines; while it's running only one increment (for the first roll) will occur. The second
 increment can also be blocked if the voice line can't play for some other reason (eg. Zag is saying something else).
+* The third roll is also about determining if a voice line is eligible, and occurs if you have previously (on the same save file)
+gotten a voice line from the NPC you are asking to assist because they were already in the room when you pressed the assist button.For example, if you try to summon Meg during the Meg fight while Meg is alive, and Meg says "No way, Zag", then from that point on your save file will give an additional increment when you attempt to summon Meg.
 
 Codex
 -----
