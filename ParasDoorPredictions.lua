@@ -33,6 +33,7 @@ local config = {
   ShowRoomNames = true,
   ShowCharonBag = true,
   ShowUsesButtons = true,
+  ShowFatefulTwist = true,
   PrintRngUses = false,
   PrintNextSeed = true
 }
@@ -118,6 +119,74 @@ ModUtil.WrapBaseFunction("RandomSetNextInitSeed", function(baseFunc, args)
     print("RandomSetNextInitSeed:", ParasDoorPredictions.CurrentUses, NextSeeds[1])
   end
 end, ParasDoorPredictions)
+
+ParasDoorPredictions.WellMenu = nil
+ModUtil.WrapBaseFunction("CreateStoreButtons", function(baseFunc, ...)
+  local r = baseFunc(...)
+  ParasDoorPredictions.WellMenu = {}
+  local components = CurrentRun.CurrentRoom.Store.Screen.Components
+  for itemIndex = 1, 3 do
+    local item = CurrentRun.CurrentRoom.Store.StoreOptions[itemIndex]
+    if item and item.Name == "RandomStoreItem" then
+      local itemLocationX = ShopUI.ShopItemStartX
+      local itemLocationY = ShopUI.ShopItemStartY + (itemIndex - 1) * ShopUI.ShopItemSpacerY
+      ParasDoorPredictions.WellMenu.FatefulTwistInfo = CreateScreenComponent({
+        Name = "BlankObstacle",
+        Group = "Combat_Menu",
+        X = itemLocationX,
+        Y = itemLocationY })
+      CreateTextBox({
+        Id = ParasDoorPredictions.WellMenu.FatefulTwistInfo.Id,
+        Text = "",
+        OffsetX = -245, OffsetY = 23,
+        Font = "AlegreyaSansSCBold",
+        FontSize = 18,
+        Color = Color.Yellow,
+        Justification = "Left"})
+    end
+  end
+  return r
+end)
+
+function PredictFatefulTwist()
+ -- based on AwardRandomStoreItem
+ if config.ShowFatefulTwist and ParasDoorPredictions.WellMenu and ParasDoorPredictions.WellMenu.FatefulTwistInfo then
+   local args = ConsumableData.RandomStoreItem.UseFunctionArgs
+   local options = {}
+   for i, traitName in pairs( args.Traits ) do
+     if TraitData[traitName] and IsGameStateEligible( CurrentRun, TraitData[traitName]) then
+       table.insert( options, { Name = traitName, Type = "Trait" } )
+     end
+   end
+   for i, consumableName in pairs( args.Consumables ) do
+     if ConsumableData[consumableName] and StoreItemEligible( CurrentRun, ConsumableData[consumableName])
+       and ( ConsumableData[consumableName].PurchaseRequirements == nil or IsGameStateEligible( ConsumableData[consumableName].PurchaseRequirements )) then
+
+       table.insert( options, { Name = consumableName, Type = "Consumable" })
+      end
+    end
+
+    local oldUses = ParasDoorPredictions.CurrentUses
+    print("predict as if", oldUses)
+    local tmpRun = DeepCopyTable(CurrentRun)
+    SimulateVoiceLines(tmpRun, GlobalVoiceLines.PurchasedWellShopItemVoiceLines)
+    local randomItem = GetRandomValue( options )
+    RandomSynchronize(oldUses) -- reset to previous value
+
+    ModifyTextBox({
+      Id = ParasDoorPredictions.WellMenu.FatefulTwistInfo.Id,
+      Text = randomItem.Name
+    })
+  end
+end
+
+ModUtil.WrapBaseFunction("CloseStoreScreen", function(baseFunc, ...)
+  if ParasDoorPredictions.WellMenu and ParasDoorPredictions.WellMenu.FatefulTwistInfo then
+    Destroy({ Ids = { ParasDoorPredictions.WellMenu.FatefulTwistInfo.Id }})
+  end
+  ParasDoorPredictions.WellMenu = nil
+  return baseFunc(...)
+end)
 
 -- track rng uses
 ParasDoorPredictions.CurrentSeed = 0
@@ -1139,6 +1208,7 @@ function UpdateRngDisplay( triggerArgs )
       ShowDoorPreview(door.Annotation, door.Door)
     end
   end
+  PredictFatefulTwist()
 end
 
 OnControlPressed { "Gift", UpdateRngDisplay }
