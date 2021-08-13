@@ -57,7 +57,6 @@ The MidShop is never offered on the exit of the following rooms:
  - `B_Combat10` (the S-shaped room in Asphodel)
  - Elysium Fountain
  - Butterfly Ball MiniBoss
- - `C_Combat03`
  - `C_Combat04`
  - `C_Combat05`
 
