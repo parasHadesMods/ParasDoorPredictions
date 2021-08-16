@@ -20,7 +20,11 @@ attempt takes longer.
 
 As a rough guideline, ForgottenKane and Vorime would try to keep each room to
 seven or fewer manip inputs in early access routing. With the advent of tools
-like the door prediction mod, it is very fast to try large numbers of increments
+like the door prediction mod, it is very fast to try large numbers of increments and tempting
+to have high numbers of manips rather than backtracking. Try to avoid this temptation.
+
+In Styx especially, the route requirements are very low so there are a lot of possible routes
+and finding one is relatively quick, so it's worthwhile to optimize for fewer manips.
 
 Required manips at surprising times
 ------------------------------------
