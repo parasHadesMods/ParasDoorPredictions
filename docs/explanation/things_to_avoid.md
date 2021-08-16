@@ -34,9 +34,14 @@ it can be especially frustrating. Sometimes this kind of oddly timed manip will 
 as there is an alternate slow way to do the route, so that the run can be continued if the surprising
 manip is missed.
 
-Dying
------
-Dying is slow. It also ruins the aesthetic of a "run that goes perfectly".
+Losing a Death Defiance
+-----------------------
+Losing a death defiance is slow. It reduces your health, which can make subsequent chaos gates trickier, and
+takes away High Confidence. It also affects the contents of Wells of Charon, since you aren't offered Kiss of Styx
+in the first slot if you are at full DDs - generally, it's better to assume the runner's competence, and provide a
+backup strategy (if possible) if they take a DD rather than requiring it.
+
+Losing a DD also ruins the aesthetic of a "run that goes perfectly".
 
 Rooms with no RNG Manipulation
 ------------------------------
