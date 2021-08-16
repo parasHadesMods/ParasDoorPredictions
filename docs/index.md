@@ -6,3 +6,7 @@ Reference
 [Special Rooms](reference/special_rooms.md)
 [Enemy Spawns](reference/enemy_spawns.md)
 [Randomness in Routed](reference/randomness.md)
+
+Explanation
+===========
+[Things to avoid in your route](explanation/things_to_avoid.md)
