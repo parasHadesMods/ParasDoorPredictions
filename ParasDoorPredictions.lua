@@ -42,6 +42,8 @@ if ModConfigMenu then
   ModConfigMenu.Register(config)
 end
 
+ParasDoorPredictions.Config = config
+
 -- Add +/- buttons while the boon details sidebar is open.
 -- We need normal combat input to be disabled or Zag will attack etc. while
 -- we're clicking, and break pots or otherwise mess up the RNG.
@@ -167,7 +169,6 @@ function PredictFatefulTwist()
     end
 
     local oldUses = ParasDoorPredictions.CurrentUses
-    print("predict as if", oldUses)
     local tmpRun = DeepCopyTable(CurrentRun)
     SimulateVoiceLines(tmpRun, GlobalVoiceLines.PurchasedWellShopItemVoiceLines)
     local randomItem = GetRandomValue( options )
@@ -693,7 +694,7 @@ function IsErebusRoom(room)
 end
 
 function PredictLoot(door)
-  predictions = {}
+  local predictions = {}
   local tmpRoom = DeepCopyTable(door.Room)
   -- Make a copy of CurrentRun that has the current room
   -- in the room history. This well make the Is*Eligible
@@ -810,7 +811,9 @@ function PredictLoot(door)
   -- what will occur there.
   local uses = ParasDoorPredictions.CurrentUses
   local seed = RandomInt(-2147483647, 2147483646)
-  print("PredictLoot: as if", uses, seed)
+  if config.PrintNextSeed then
+    print("PredictLoot: as if", uses, seed)
+  end
 
   -- Predict boon or chaos reward
   NextSeeds[1] = seed
@@ -1117,7 +1120,7 @@ function ShowExits(annotation, nextExitRewards)
     return
   end
 
-  for k, reward in pairs(predictions.NextExitRewards) do
+  for k, reward in pairs(nextExitRewards) do
     local rewardString = ""
     if config.ShowRoomNames then
       rewardString = rewardString .. reward.RoomName .. " "
