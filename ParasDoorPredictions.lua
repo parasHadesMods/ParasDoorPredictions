@@ -814,6 +814,7 @@ function PredictLoot(door)
   if config.PrintNextSeed then
     print("PredictLoot: as if", uses, seed)
   end
+  predictions.Seed = seed
 
   -- Predict boon or chaos reward
   NextSeeds[1] = seed
