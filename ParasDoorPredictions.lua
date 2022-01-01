@@ -972,7 +972,8 @@ function PredictLoot(door)
       Erebus = exitIsErebus,
       CanHaveSurvival = exitCanHaveSurvival,
       StyxMiniBoss = exitRoom.RequireWingEndMiniBoss,
-      RoomName = exitRoom.Name
+      RoomName = exitRoom.Name,
+      Room = exitRoom
     })
   end
   predictions.NextExitRewards = rewardsChosen
@@ -991,6 +992,7 @@ function PredictLoot(door)
     predictions.StoreOptionsReroll = rerollStore.StoreOptions
   end
   -- Reset the RNG to the current value.
+  predictions.CurrentRun = tmpRun
   NextSeeds[1] = oldSeed
   RandomSynchronize(oldUses)
 
