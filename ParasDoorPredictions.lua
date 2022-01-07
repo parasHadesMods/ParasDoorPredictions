@@ -946,6 +946,7 @@ function PredictLoot(door)
     local exitIsErebus = IsErebusRoom(exitRoom)
     local exitRoomExitCount = ExitCountForRoom(exitRoom)
     exitRoom.ChosenRewardType = ParasDoorPredictions.ChooseRoomReward(tmpRun, exitRoom, rewardStoreName, rewardsChosen, { PreviousRoom = tmpRoom }) -- calls RandomSynchronize(4)
+    exitRoom.RewardStoreName = rewardStoreName
     local exitChallengeSwitchBaseCount = ParasDoorPredictions.ChallengeSwitchBaseCount[exitRoom.Name] or 0
     runForWellPrediction.CurrentRoom = exitRoom
     if IsChallengeSwitchEligible( runForWellPrediction, exitChallengeSwitchBaseCount ) then
