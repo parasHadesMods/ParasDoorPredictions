@@ -791,7 +791,6 @@ function PredictLoot(door)
   local hasWellShop = false
   if IsWellShopEligible(tmpRun, tmpRoom) then
     hasWellShop = true
-    tmpRun.LastWellShopDepth = currentRun.RunDepthCache
     tmpRoom.Store = ParasDoorPredictions.FillInShopOptions(tmpRun, { StoreData = StoreData.RoomShop, RoomName = tmpRoom.Name })
     predictions.StoreOptions = tmpRoom.Store.StoreOptions
   end
@@ -802,6 +801,9 @@ function PredictLoot(door)
     -- the next room. But only some rooms have spawn locations for a well shop.
     hasWellShop = false
     predictions.StoreOptions = nil
+  end
+  if hasWellShop then -- only update the depth if the shop could actually spawn
+    tmpRun.LastWellShopDepth = tmpRun.RunDepthCache
   end
   if tmpRoom.ChosenRewardType == "Shop" then
     tmpRoom.Store = ParasDoorPredictions.FillInShopOptions(tmpRun, { StoreData = StoreData[tmpRoom.StoreDataName or "WorldShop"], RoomName = tmpRoom.Name })
