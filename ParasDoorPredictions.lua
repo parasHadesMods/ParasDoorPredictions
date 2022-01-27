@@ -34,6 +34,7 @@ local config = {
   ShowCharonBag = true,
   ShowUsesButtons = true,
   ShowFatefulTwist = true,
+  ShowBouldyGift = true,
   PrintRngUses = false,
   PrintNextSeed = true
 }
@@ -178,6 +179,39 @@ function PredictFatefulTwist()
       Id = ParasDoorPredictions.WellMenu.FatefulTwistInfo.Id,
       Text = randomItem.Name
     })
+  end
+end
+
+function PredictBouldyGift()
+  if config.ShowBouldyGift and CurrentRun.CurrentRoom.Name == "A_Story01" then
+    local bouldy = GetClosestUnitOfType({
+        Id = CurrentRun.Hero.ObjectId,
+        DestinationName = "NPC_Bouldy_01",
+        Distance = 9999
+    })
+    local oldUses = ParasDoorPredictions.CurrentUses
+    CoinFlip() -- randomOffsetX in PopOverheadText
+    CoinFlip() -- randomFontSize in PopOverheadText
+    CoinFlip() -- PlayRandomRemainingTextLines(target.GiftTextLineSets)
+    local traitName = GetRandomValue(PresetEventArgs.BouldyRandomBlessings)
+    local traitData = GetProcessedTraitData({
+        Unit = CurrentRun.Hero,
+        TraitName = traitName,
+        Rarity = "Common"
+    })
+    local amount = 0.0
+    if traitData.MoneyMultiplier ~= nil then
+      amount = traitData.MoneyMultiplier - 1.0
+    elseif traitData.AddOutgoingDamageModifiers ~= nil then
+      amount = traitData.AddOutgoingDamageModifiers.ValidWeaponMultiplier - 1.0
+    elseif traitData.AddIncomingDamageModifiers ~= nil then
+      amount = 1.0 - traitData.AddIncomingDamageModifiers.NonTrapDamageTakenMultiplier
+    elseif traitData.PropertyChanges ~= nil and traitData.PropertyChanges[1] ~= nil then
+      amount = traitData.PropertyChanges[1].BaseValue - 1.0
+    end
+    amount = amount * 100
+    ModUtil.Hades.PrintOverhead(tostring(amount) .. "% " .. string.sub(traitName, 16), 0, Color.Yellow, bouldy)
+    RandomSynchronize(oldUses)
   end
 end
 
@@ -1218,6 +1252,7 @@ function UpdateRngDisplay( triggerArgs )
     end
   end
   PredictFatefulTwist()
+  PredictBouldyGift()
 end
 
 OnControlPressed { "Gift", UpdateRngDisplay }
