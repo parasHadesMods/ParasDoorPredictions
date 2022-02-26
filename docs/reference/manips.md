@@ -28,6 +28,12 @@ increment can also be blocked if the voice line can't play for some other reason
 * The third roll is also about determining if a voice line is eligible, and occurs if you have previously (on the same save file)
 gotten a voice line from the NPC you are asking to assist because they were already in the room when you pressed the assist button.For example, if you try to summon Meg during the Meg fight while Meg is alive, and Meg says "No way, Zag", then from that point on your save file will give an additional increment when you attempt to summon Meg.
 
+Reload
+-------
+One RNG increment occurs when you reload any of the Rail weapons. This roll determines if a voice line should play.
+* An additional RNG increment is applied if a voice line is actually played, to select the voice line. This is around a 7.5% chance
+and has a 300s cooldown (see HeroData.GunReloadingStartVoiceLines).
+
 Codex
 -----
 When boon description pages are displayed in the codex, a fixed number of RNG increments occur depending on the god and page.
@@ -54,6 +60,16 @@ Reroll
 ------
 One RNG increment occurs when you get a voice line from attempting to reroll using fated persuasion when you have
 insufficient rerolls remaining. This voice line is on a 7 second cooldown (see HeroData.CannotRerollVoiceLines).
+
+Purchase Well Item
+----------------------
+One RNG increment occurs when you get a voice line from purchasing a well item. This voice line is on a 30 second cooldown (see GlobalVoiceLines.PurchasedWellShopItemVoiceLines).
+
+Fail to Purchase Well Item
+--------------------------------
+One RNG increment occurs when you get a voice line from attempting to purchase a well item which you cannot purchase.
+* There is a 10 second cooldown on the voice line for invalid purchases (HeroData.CannotPurchaseVoiceLines).
+* There is a 6 second cooldown on the voice line for purchases you can't afford (HeroData.NotEnoughCurrencyVoiceLines).
 
 Pots
 ----

@@ -231,8 +231,8 @@ local random = ModUtil.UpValues(
   ModUtil.GetOriginalBaseValue("RandomInit"))
 
 local function printRngUse()
-  local linesToSkip = 1
-  local linesToPrint = 2
+  local linesToSkip = 2
+  local linesToPrint = 5
   -- log which function caused this use of the RNG
   if config.PrintRngUses then
    local traceback = debug.traceback()
