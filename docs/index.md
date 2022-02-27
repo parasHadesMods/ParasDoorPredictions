@@ -10,3 +10,4 @@ Reference
 Explanation
 ===========
 - [Things to avoid in your route](explanation/things_to_avoid.md)
+- [How voice lines work](explanation/voice_lines.md)
