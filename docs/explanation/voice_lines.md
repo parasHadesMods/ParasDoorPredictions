@@ -14,7 +14,7 @@ Other voice lines, such as those spoken by Chaos after selecting a boon, won't p
 
 Cooldowns
 -----------
-Many voicelines have cooldowns, which are measured by a timer which keeps running in many circumstances where the IGT is paused, for example in Boon or Well Shop menus. This means that more or fewer voice line rolls may be triggered depending on how fast you run the route RTA. In some cases it may be required to wait on a menu for a cooldown timer to expire, if you need the voice line to stay on route.
+Many voicelines have cooldowns. The timer for these cooldowns keeps running in many circumstances where the IGT is paused, for example in Boon or Well Shop menus. This means that more or fewer voice line rolls may be triggered depending on how fast you run the route RTA. In some cases it may be required to wait on a menu for a cooldown timer to expire, if you need the voice line to stay on route.
 
 Well Shop Rerolls
 ---------------------
