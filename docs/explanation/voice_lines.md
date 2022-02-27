@@ -1,4 +1,4 @@
-Voice Lines
+How Voice Lines Work
 ==============
 
 Reacting to and manipulating the voice lines that play during the run is a key part of running any route.
