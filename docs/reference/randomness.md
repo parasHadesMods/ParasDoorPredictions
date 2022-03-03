@@ -43,3 +43,7 @@ in the ConsumableData.DamageSelfDrop table, which varies each time the game is l
 
 The Price of Midas will take one of two possible values based on this order.
 
+Sell Well
+---------
+Boons appear in an arbitrary order in the sell well.
+
