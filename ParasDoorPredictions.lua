@@ -381,6 +381,7 @@ ParasDoorPredictions.OverrideExitCount = {
   RoomSecret01 = 2,
   RoomSecret02 = 3,
   RoomSecret03 = 1,
+  A_MiniBoss03 = 2,
   B_Combat10 = 2,
   C_MiniBoss02 = 2,
   C_Reprieve01 = 2,
