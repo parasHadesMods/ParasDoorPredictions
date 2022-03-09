@@ -505,6 +505,12 @@ ParasDoorPredictions.ChallengeSwitchBaseCount = {
   C_PostBoss01 = 2
 }
 
+ParasDoorPredictions.HasCharonBagSpawnPoint = {
+  A_Shop01 = true,
+  B_Shop01 = true,
+  C_Shop01 = true
+}
+
 
 ParasDoorPredictions.RarityColorMap = {
   Common = Color.BoonPatchCommon,
@@ -889,7 +895,7 @@ function PredictLoot(door)
   -- Predict if the room's exit doors will be blue or gold leaf.
   local rewardStoreName = ChooseNextRewardStore(tmpRun) -- calls RandomSynchronize
   -- Predict if shop will have Charon's bag
-  if predictions.Encounter and predictions.Encounter.Name == "Shop" then
+  if predictions.Encounter and predictions.Encounter.Name == "Shop" and ParasDoorPredictions.HasCharonBagSpawnPoint[tmpRun.CurrentRoom.Name] then
     -- Simulate SpawnRoomReward, this happens during StartRoom for shops
     if tmpRun.CurrentRoom.SpawnRewardGlobalVoiceLines ~= nil then
       SimulateVoiceLines( tmpRun, GlobalVoiceLines[tmpRun.CurrentRoom.SpawnRewardGlobalVoiceLines] )
