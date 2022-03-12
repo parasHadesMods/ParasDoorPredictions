@@ -1019,7 +1019,10 @@ function PredictLoot(door)
       RoomName = exitRoom.Name,
       Room = exitRoom
     })
+    -- for estimating end of room offset
+    SimulateVoiceLines(tmpRun, HeroVoiceLines.ExitsUnlockedVoiceLines)
   end
+  predictions.EstimatedEndOfRoomOffset = ParasDoorPredictions.CurrentUses
   predictions.NextExitRewards = rewardsChosen
 
   -- Rerolls
