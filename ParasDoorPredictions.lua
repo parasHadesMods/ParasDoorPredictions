@@ -666,14 +666,29 @@ function PredictUpgradeOptions(run, lootName, args)
   args = args or {}
 
   local rewardCount = run.LootTypeHistory[lootName] or 0
+  local rewardClearedInUpgradeHarvestBoon = true
   if run.CurrentRoom.Encounter == nil or run.CurrentRoom.Encounter.EncounterType == "NonCombat" then
-    RandomSynchronize()
+    rewardClearedInUpgradeHarvestBoon = false
   else
+    for i, trait in pairs( run.Hero.Traits ) do
+      if trait.HarvestBoons then
+        local traitCurrentRoom = (trait.CurrentRoom or -1) + 1
+        if trait.RoomsPerUpgrade and traitCurrentRoom < trait.RoomsPerUpgrade then
+          rewardClearedInUpgradeHarvestBoon = false
+        end
+      end
+    end
+  end
+  if rewardClearedInUpgradeHarvestBoon then
     -- the game will synchronize to rewardCount + 1, we add
     -- an extra increment to account for choosing the flavor
     -- text at the top of the boon menu which is done before
     -- choosing rewards
     RandomSynchronize(rewardCount + 2)
+  else
+    -- The early exit from UpgradeHarvestBoon means that the orignal roll (prior to pickup)
+    -- is used, and the reward isn't rolled again on boon pickup.
+    RandomSynchronize()
   end
   local lootData = LootData[lootName]
   local loot = DeepCopyTable(lootData)
@@ -685,8 +700,8 @@ function PredictUpgradeOptions(run, lootName, args)
   end
   SetTraitsOnLoot(loot)
   if not args.SpawnOnly then
-    if run.CurrentRoom.Encounter == nil or run.CurrentRoom.Encounter.EncounterType == "NonCombat" then
-      -- the calculation for Approval Process runs when you open the menu, even in non-combat rooms
+    if not rewardClearedInUpgradeHarvestBoon then
+      -- the calculation for Approval Process always runs when you open the menu
       RandomSynchronize(rewardCount + 2)
     end
     PredictApprovalProcess(loot)
