@@ -363,6 +363,14 @@ ParasDoorPredictions.IsGameStateEligible = CloneFunction(IsGameStateEligible, fu
   return func
 end)
 
+ModUtil.WrapBaseFunction("IsGameStateEligible", function(baseFunc, currentRun, source, requirements, args)
+  local oldCurrentRun = CurrentRun
+  CurrentRun = currentRun
+  local result = baseFunc(currentRun, source, requirements, args)
+  CurrentRun = oldCurrentRun
+  return result
+end)
+
 ParasDoorPredictions.IsVoiceLineEligible = CloneFunction(IsVoiceLineEligible, function(env, func)
   env.CheckCooldown = ParasDoorPredictions.CheckCooldown
   env.IsGameStateEligible = ParasDoorPredictions.IsGameStateEligible
