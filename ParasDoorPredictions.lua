@@ -544,7 +544,7 @@ function SimulateVoiceLines(run, voiceLines, args)
     return
   end
   if not ParasDoorPredictions.IsVoiceLineEligible(run, voiceLines, nil, nil, source, nil) then
-    print("SimulateVoiceLines: Ineligible")
+    --print("SimulateVoiceLines: Ineligible")
     if voiceLines.PlayedNothingFunctionName ~= nil then
       print("==== BEGIN KNOWN ISSUE ====")
       print("voiceLines.PlayedNothingFunctionName", voiceLines.PlayedNothingFunctionName)
@@ -1028,6 +1028,11 @@ function PredictLoot(door)
     if exitRoom.ChosenRewardType ~= "Devotion" then -- don't care about trials, we won't take them anyways
       SetupRoomReward(tmpRun, exitRoom, rewardsChosen)
     end
+    if exitRoom.UseOptionalOverrides then
+      for key, value in pairs( exitRoom.OptionalOverrides ) do
+        exitRoom[key] = value
+      end
+    end
     table.insert( rewardsChosen, {
       RewardType = exitRoom.ChosenRewardType,
       ForceLootName = exitRoom.ForceLootName,
@@ -1042,7 +1047,10 @@ function PredictLoot(door)
       RoomName = exitRoom.Name,
       Room = exitRoom
     })
-    -- for estimating end of room offset
+  end
+  -- for estimating end of room offset
+  TmpPlayingVoiceLines = {}
+  for i, exitRoom in pairs(exitRooms) do
     SimulateVoiceLines(tmpRun, HeroVoiceLines.ExitsUnlockedVoiceLines)
   end
   predictions.EstimatedEndOfRoomOffset = ParasDoorPredictions.CurrentUses
