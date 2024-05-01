@@ -1007,11 +1007,15 @@ function PredictLoot(door)
   end
   local rewardsChosen = {}
   for i, exitRoom in pairs(exitRooms) do
+    local exitDoor = nil
+    if tmpRoom.PersistentExitDoorRewards and HasSeenRoomEarlierInRun(tmpRun, tmpRoom.Name) then
+      exitDoor = { Name = "TravelDoor03", ObjectId = i }
+    end
     local exitCanHaveSurvival = Contains(exitRoom.LegalEncounters, "SurvivalTartarus") and IsEncounterEligible(runForWellPrediction, exitRoom, EncounterData.SurvivalTartarus) and exitRoom.ChosenRewardType ~= "Devotion"
     local exitIsFountain = IsFountainRoom(exitRoom)
     local exitIsErebus = IsErebusRoom(exitRoom)
     local exitRoomExitCount = ExitCountForRoom(exitRoom)
-    exitRoom.ChosenRewardType = ParasDoorPredictions.ChooseRoomReward(tmpRun, exitRoom, rewardStoreName, rewardsChosen, { PreviousRoom = tmpRoom }) -- calls RandomSynchronize(4)
+    exitRoom.ChosenRewardType = ParasDoorPredictions.ChooseRoomReward(tmpRun, exitRoom, rewardStoreName, rewardsChosen, { PreviousRoom = tmpRoom, Door = exitDoor }) -- calls RandomSynchronize(4)
     exitRoom.RewardStoreName = rewardStoreName
     local exitChallengeSwitchBaseCount = ParasDoorPredictions.ChallengeSwitchBaseCount[exitRoom.Name] or 0
     runForWellPrediction.CurrentRoom = exitRoom
@@ -1026,11 +1030,7 @@ function PredictLoot(door)
     end
     local exitHasShrinePointDoor = exitSecretPointCount > 0 and IsShrinePointDoorEligible(runForWellPrediction, exitRoom)
     if exitRoom.ChosenRewardType ~= "Devotion" then -- don't care about trials, we won't take them anyways
-      local args = {}
-      if tmpRoom.PersistentExitDoorRewards and HasSeenRoomEarlierInRun(tmpRun, tmpRoom.Name) then
-        args.Door = { Name = "TravelDoor03", ObjectId = i }
-      end
-      SetupRoomReward(tmpRun, exitRoom, rewardsChosen, args)
+      SetupRoomReward(tmpRun, exitRoom, rewardsChosen, { Door = exitDoor })
     end
     if exitRoom.UseOptionalOverrides then
       for key, value in pairs( exitRoom.OptionalOverrides ) do
