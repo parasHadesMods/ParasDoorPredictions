@@ -1026,7 +1026,11 @@ function PredictLoot(door)
     end
     local exitHasShrinePointDoor = exitSecretPointCount > 0 and IsShrinePointDoorEligible(runForWellPrediction, exitRoom)
     if exitRoom.ChosenRewardType ~= "Devotion" then -- don't care about trials, we won't take them anyways
-      SetupRoomReward(tmpRun, exitRoom, rewardsChosen)
+      local args = {}
+      if tmpRoom.PersistentExitDoorRewards and HasSeenRoomEarlierInRun(tmpRun, tmpRoom.Name) then
+        args.Door = { Name = "TravelDoor03", ObjectId = i }
+      end
+      SetupRoomReward(tmpRun, exitRoom, rewardsChosen, args)
     end
     if exitRoom.UseOptionalOverrides then
       for key, value in pairs( exitRoom.OptionalOverrides ) do
