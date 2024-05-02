@@ -378,9 +378,9 @@ ParasDoorPredictions.IsVoiceLineEligible = CloneFunction(IsVoiceLineEligible, fu
 end)
 
 ParasDoorPredictions.FillInShopOptions = CloneFunction(FillInShopOptions, function(env, func)
-  return function(run, ...)
-    env.CurrentRun = run
-    return func(...)
+  return function(args)
+    env.CurrentRun = args.ParasDoorPredictions.CurrentRun
+    return func(args)
   end
 end)
 
@@ -855,7 +855,13 @@ function PredictLoot(door)
   local hasWellShop = false
   if IsWellShopEligible(tmpRun, tmpRoom) then
     hasWellShop = true
-    tmpRoom.Store = ParasDoorPredictions.FillInShopOptions(tmpRun, { StoreData = StoreData.RoomShop, RoomName = tmpRoom.Name })
+    tmpRoom.Store = ParasDoorPredictions.FillInShopOptions({
+       ParasDoorPredictions = {
+         CurrentRun = tmpRun
+       },
+       StoreData = StoreData.RoomShop,
+       RoomName = tmpRoom.Name
+      })
     predictions.StoreOptions = tmpRoom.Store.StoreOptions
   end
   local challengeSwitchBaseCount = ParasDoorPredictions.ChallengeSwitchBaseCount[tmpRoom.Name] or 0
@@ -870,7 +876,13 @@ function PredictLoot(door)
     tmpRun.LastWellShopDepth = tmpRun.RunDepthCache
   end
   if tmpRoom.ChosenRewardType == "Shop" then
-    tmpRoom.Store = ParasDoorPredictions.FillInShopOptions(tmpRun, { StoreData = StoreData[tmpRoom.StoreDataName or "WorldShop"], RoomName = tmpRoom.Name })
+    tmpRoom.Store = ParasDoorPredictions.FillInShopOptions({
+       ParasDoorPredictions = {
+         CurrentRun = tmpRun
+       },
+       StoreData = StoreData[tmpRoom.StoreDataName or "WorldShop"],
+       RoomName = tmpRoom.Name
+      })
     predictions.StoreOptions = tmpRoom.Store.StoreOptions
   end
   -- Determine the seed of the next room, which we will use for predicting
