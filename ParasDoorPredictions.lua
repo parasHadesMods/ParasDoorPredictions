@@ -510,7 +510,19 @@ ParasDoorPredictions.ChallengeSwitchBaseCount = {
   C_Combat12 = 2,
   C_Combat13 = 2,
   C_Combat14 = 2,
-  C_PostBoss01 = 2
+  C_PostBoss01 = 2,
+  D_Mini01 = 1,
+  D_Mini02 = 1,
+  D_Mini04 = 1,
+  D_Mini06 = 1,
+  D_Mini07 = 1,
+  D_Mini10 = 1,
+  D_Mini11 = 1,
+  D_Mini12 = 1,
+  D_Mini14 = 1,
+  D_MiniBoss04 = 1,
+  D_Combat02 = 2,
+  D_Combat06 = 1
 }
 
 ParasDoorPredictions.HasCharonBagSpawnPoint = {
@@ -1021,48 +1033,54 @@ function PredictLoot(door)
   for i, exitRoom in pairs(exitRooms) do
     local exitDoor = nil
     if tmpRoom.PersistentExitDoorRewards and HasSeenRoomEarlierInRun(tmpRun, tmpRoom.Name) then
-      exitDoor = { Name = "TravelDoor03", ObjectId = i }
+      exitDoor = {
+        Name = "TravelDoor03",
+        ObjectId = i,
+        Closed = tmpRun.ClosedDoors[tmpRoom.Name][i]
+      }
     end
-    local exitCanHaveSurvival = Contains(exitRoom.LegalEncounters, "SurvivalTartarus") and IsEncounterEligible(runForWellPrediction, exitRoom, EncounterData.SurvivalTartarus) and exitRoom.ChosenRewardType ~= "Devotion"
-    local exitIsFountain = IsFountainRoom(exitRoom)
-    local exitIsErebus = IsErebusRoom(exitRoom)
-    local exitRoomExitCount = ExitCountForRoom(exitRoom)
-    exitRoom.ChosenRewardType = ParasDoorPredictions.ChooseRoomReward(tmpRun, exitRoom, rewardStoreName, rewardsChosen, { PreviousRoom = tmpRoom, Door = exitDoor }) -- calls RandomSynchronize(4)
-    exitRoom.RewardStoreName = rewardStoreName
-    local exitChallengeSwitchBaseCount = ParasDoorPredictions.ChallengeSwitchBaseCount[exitRoom.Name] or 0
-    runForWellPrediction.CurrentRoom = exitRoom
-    if IsChallengeSwitchEligible( runForWellPrediction, exitChallengeSwitchBaseCount ) then
-      exitChallengeSwitchBaseCount = exitChallengeSwitchBaseCount - 1
-    end
-    local exitHasWellShop = IsWellShopEligible(runForWellPrediction, exitRoom) and exitChallengeSwitchBaseCount > 0
-    local exitSecretPointCount = ParasDoorPredictions.SecretPointCount[exitRoom.Name] or 0
-    local exitHasChaosGate = exitSecretPointCount > 0 and IsSecretDoorEligible(runForWellPrediction, exitRoom)
-    if exitHasChaosGate then
-      exitSecretPointCount = exitSecretPointCount - 1
-    end
-    local exitHasShrinePointDoor = exitSecretPointCount > 0 and IsShrinePointDoorEligible(runForWellPrediction, exitRoom)
-    if exitRoom.ChosenRewardType ~= "Devotion" then -- don't care about trials, we won't take them anyways
-      SetupRoomReward(tmpRun, exitRoom, rewardsChosen, { Door = exitDoor })
-    end
-    if exitRoom.UseOptionalOverrides then
-      for key, value in pairs( exitRoom.OptionalOverrides ) do
-        exitRoom[key] = value
+    if exitDoor == nil or not exitDoor.Closed then
+      local exitCanHaveSurvival = Contains(exitRoom.LegalEncounters, "SurvivalTartarus") and IsEncounterEligible(runForWellPrediction, exitRoom, EncounterData.SurvivalTartarus) and exitRoom.ChosenRewardType ~= "Devotion"
+      local exitIsFountain = IsFountainRoom(exitRoom)
+      local exitIsErebus = IsErebusRoom(exitRoom)
+      local exitRoomExitCount = ExitCountForRoom(exitRoom)
+      exitRoom.ChosenRewardType = ParasDoorPredictions.ChooseRoomReward(tmpRun, exitRoom, rewardStoreName, rewardsChosen, { PreviousRoom = tmpRoom, Door = exitDoor }) -- calls RandomSynchronize(4)
+      exitRoom.RewardStoreName = rewardStoreName
+      local exitChallengeSwitchBaseCount = ParasDoorPredictions.ChallengeSwitchBaseCount[exitRoom.Name] or 0
+      runForWellPrediction.CurrentRoom = exitRoom
+      if IsChallengeSwitchEligible( runForWellPrediction, exitChallengeSwitchBaseCount ) then
+        exitChallengeSwitchBaseCount = exitChallengeSwitchBaseCount - 1
       end
+      local exitHasWellShop = IsWellShopEligible(runForWellPrediction, exitRoom) and exitChallengeSwitchBaseCount > 0
+      local exitSecretPointCount = ParasDoorPredictions.SecretPointCount[exitRoom.Name] or 0
+      local exitHasChaosGate = exitSecretPointCount > 0 and IsSecretDoorEligible(runForWellPrediction, exitRoom)
+      if exitHasChaosGate then
+        exitSecretPointCount = exitSecretPointCount - 1
+      end
+      local exitHasShrinePointDoor = exitSecretPointCount > 0 and IsShrinePointDoorEligible(runForWellPrediction, exitRoom)
+      if exitRoom.ChosenRewardType ~= "Devotion" then -- don't care about trials, we won't take them anyways
+        SetupRoomReward(tmpRun, exitRoom, rewardsChosen, { Door = exitDoor })
+      end
+      if exitRoom.UseOptionalOverrides then
+        for key, value in pairs( exitRoom.OptionalOverrides ) do
+          exitRoom[key] = value
+        end
+      end
+      table.insert( rewardsChosen, {
+        RewardType = exitRoom.ChosenRewardType,
+        ForceLootName = exitRoom.ForceLootName,
+        WellShop = exitHasWellShop,
+        ExitCount = exitRoomExitCount,
+        Fountain = exitIsFountain,
+        ShrinePointDoor = exitHasShrinePointDoor,
+        ChaosGate = exitHasChaosGate,
+        Erebus = exitIsErebus,
+        CanHaveSurvival = exitCanHaveSurvival,
+        StyxMiniBoss = exitRoom.RequireWingEndMiniBoss,
+        RoomName = exitRoom.Name,
+        Room = exitRoom
+      })
     end
-    table.insert( rewardsChosen, {
-      RewardType = exitRoom.ChosenRewardType,
-      ForceLootName = exitRoom.ForceLootName,
-      WellShop = exitHasWellShop,
-      ExitCount = exitRoomExitCount,
-      Fountain = exitIsFountain,
-      ShrinePointDoor = exitHasShrinePointDoor,
-      ChaosGate = exitHasChaosGate,
-      Erebus = exitIsErebus,
-      CanHaveSurvival = exitCanHaveSurvival,
-      StyxMiniBoss = exitRoom.RequireWingEndMiniBoss,
-      RoomName = exitRoom.Name,
-      Room = exitRoom
-    })
   end
   -- for estimating end of room offset
   TmpPlayingVoiceLines = {}
@@ -1267,6 +1285,7 @@ function ShowDoorPreview(annotation, door)
     AddLine(annotation, rewardString, {LuaKey = "Room", LuaValue = door.Room})
   end
   local predictions = PredictLoot(door)
+  AddLine(annotation, predictions.Seed)
   if config.ShowCharonBag and predictions.HasCharonBag then
     AddLine(annotation, "Charon's Bag", { Color = Color.Yellow })
   end
