@@ -1029,17 +1029,37 @@ function PredictLoot(door)
       end
     end
   end
+  local exitDoors = {}
+  local exitDoorNotRequired = true
+  if tmpRoom.PersistentExitDoorRewards and HasSeenRoomEarlierInRun(tmpRun, tmpRoom.Name) then
+    exitDoorNotRequired = false
+    local exitDoorsByObjectId = {}
+    for roomIndex = #tmpRun.RoomHistory, 1, -1 do
+      local prevRoom = tmpRun.RoomHistory[roomIndex]
+      if tmpRoom.Name == prevRoom.Name then
+        for objectId, reward in pairs(prevRoom.OfferedRewards) do
+          local exitDoor = {
+            Name = "TravelDoor03",
+            ObjectId = objectId,
+            Closed = tmpRun.ClosedDoors[tmpRoom.Name][objectId]
+          }
+          exitDoorsByObjectId[objectId] = exitDoor
+        end
+      end
+    end
+    -- Even though doors sort by name, and all the doors in D_Hub have
+    -- the same name, the sort is not stable! So it's important to sort
+    -- the exitDoors in order to shuffle them into the correct position.
+    for i, door in ipairs(CollapseTableOrdered(exitDoorsByObjectId)) do
+      if not door.Closed then
+        table.insert(exitDoors, door)
+      end
+    end
+  end
   local rewardsChosen = {}
   for i, exitRoom in pairs(exitRooms) do
-    local exitDoor = nil
-    if tmpRoom.PersistentExitDoorRewards and HasSeenRoomEarlierInRun(tmpRun, tmpRoom.Name) then
-      exitDoor = {
-        Name = "TravelDoor03",
-        ObjectId = i,
-        Closed = tmpRun.ClosedDoors[tmpRoom.Name][i]
-      }
-    end
-    if exitDoor == nil or not exitDoor.Closed then
+    local exitDoor = exitDoors[i]
+    if exitDoorNotRequired or exitDoor ~= nil then
       local exitCanHaveSurvival = Contains(exitRoom.LegalEncounters, "SurvivalTartarus") and IsEncounterEligible(runForWellPrediction, exitRoom, EncounterData.SurvivalTartarus) and exitRoom.ChosenRewardType ~= "Devotion"
       local exitIsFountain = IsFountainRoom(exitRoom)
       local exitIsErebus = IsErebusRoom(exitRoom)
