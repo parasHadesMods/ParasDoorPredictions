@@ -1029,6 +1029,7 @@ function PredictLoot(door)
       end
     end
   end
+  -- Correctly assign previous rewards to styx doors when re-entering the hub
   local exitDoors = {}
   local exitDoorNotRequired = true
   if tmpRoom.PersistentExitDoorRewards and HasSeenRoomEarlierInRun(tmpRun, tmpRoom.Name) then
