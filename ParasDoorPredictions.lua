@@ -540,6 +540,8 @@ ParasDoorPredictions.RarityColorMap = {
   Legendary = Color.BoonPatchLegendary
 }
 
+ParasDoorPredictions.D_HubDoorObjectIds = { 551169, 551172, 551173, 551175, 551176 }
+
 TmpPlayedRandomLines = nil
 TmpPlayingVoiceLines = {}
 TmpGlobalCooldowns = {}
@@ -1013,47 +1015,44 @@ function PredictLoot(door)
       rewardStoreName = exitRoom.ForcedRewardStore
     end
   end
-  -- upgrade styx miniboss doors
-  if tmpRoom.FirstAppearanceNumExitOverrides ~= nil and not HasSeenRoomEarlierInRun(tmpRun, tmpRoom.Name) then
-    local randomDoors = {}
-    for i, _ in ipairs(exitRooms) do
-      table.insert(randomDoors, { Name = "TravelDoor03", Index = i })
-    end
 
-    for i = 1, tmpRoom.FirstAppearanceNumExitOverrides do
-      local randomDoor = RemoveRandomValue( randomDoors )
-      local randomRoom = exitRooms[randomDoor.Index]
-      randomRoom.UseOptionalOverrides = true
-      for k,v in pairs( randomRoom.OptionalOverrides ) do
-        randomRoom[k] = v
-      end
-    end
-  end
-  -- Correctly assign previous rewards to styx doors when re-entering the hub
+  -- Special treatment for D_Hub
   local exitDoors = {}
   local exitDoorNotRequired = true
-  if tmpRoom.PersistentExitDoorRewards and HasSeenRoomEarlierInRun(tmpRun, tmpRoom.Name) then
+  if tmpRoom.Name == "D_Hub" then
     exitDoorNotRequired = false
-    local exitDoorsByObjectId = {}
-    for roomIndex = #tmpRun.RoomHistory, 1, -1 do
-      local prevRoom = tmpRun.RoomHistory[roomIndex]
-      if tmpRoom.Name == prevRoom.Name then
-        for objectId, reward in pairs(prevRoom.OfferedRewards) do
-          local exitDoor = {
-            Name = "TravelDoor03",
-            ObjectId = objectId,
-            Closed = tmpRun.ClosedDoors[tmpRoom.Name][objectId]
-          }
-          exitDoorsByObjectId[objectId] = exitDoor
-        end
+    local offeredExitDoors = {}
+    -- SetupObstacle
+    for i, objectId in ipairs(ParasDoorPredictions.D_HubDoorObjectIds) do
+      if not ((tmpRun.ClosedDoors or {})[tmpRoom.Name] or {})[objectId] then
+        offeredExitDoors[objectId] = {
+          Name = "TravelDoor03",
+          ObjectId = objectId
+        }
       end
     end
+
+    -- DoUnlockRoomExits
     -- Even though doors sort by name, and all the doors in D_Hub have
-    -- the same name, the sort is not stable! So it's important to sort
-    -- the exitDoors in order to shuffle them into the correct position.
-    for i, door in ipairs(CollapseTableOrdered(exitDoorsByObjectId)) do
-      if not door.Closed then
-        table.insert(exitDoors, door)
+    -- the same name, the sort function is not stable! So it's important
+    -- to sort doors in order to shuffle them into the correct position.
+    local exitDoorsIPairs = CollapseTableOrdered( offeredExitDoors)
+
+    for i, door in ipairs(exitDoorsIPairs) do
+      door.Index = i
+      table.insert(exitDoors, door)
+    end
+
+    -- upgrade miniboss doors
+    if not HasSeenRoomEarlierInRun(tmpRun, tmpRoom.Name) then
+      local randomDoors = ShallowCopyTable( exitDoorsIPairs )
+      for i = 1, tmpRoom.FirstAppearanceNumExitOverrides do
+        local randomDoor = RemoveRandomValue( randomDoors )
+        local randomRoom = exitRooms[randomDoor.Index]
+        randomRoom.UseOptionalOverrides = true
+        for k,v in pairs( randomRoom.OptionalOverrides ) do
+          randomRoom[k] = v
+        end
       end
     end
   end
@@ -1099,7 +1098,8 @@ function PredictLoot(door)
         CanHaveSurvival = exitCanHaveSurvival,
         StyxMiniBoss = exitRoom.RequireWingEndMiniBoss,
         RoomName = exitRoom.Name,
-        Room = exitRoom
+        Room = exitRoom,
+        DoorObjectId = (exitDoor or {}).ObjectId
       })
     end
   end
@@ -1257,7 +1257,6 @@ function ShowExits(annotation, nextExitRewards)
   end
 
   for k, reward in pairs(nextExitRewards) do
-    local rewardString = ""
     if config.ShowRoomNames then
       rewardString = rewardString .. reward.RoomName .. " "
     end
