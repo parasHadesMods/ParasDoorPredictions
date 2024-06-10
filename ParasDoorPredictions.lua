@@ -1257,6 +1257,7 @@ function ShowExits(annotation, nextExitRewards)
   end
 
   for k, reward in pairs(nextExitRewards) do
+    local rewardString = ""
     if config.ShowRoomNames then
       rewardString = rewardString .. reward.RoomName .. " "
     end
