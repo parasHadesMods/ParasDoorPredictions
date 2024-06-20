@@ -38,17 +38,17 @@ Codex
 -----
 When boon description pages are displayed in the codex, a fixed number of RNG increments occur depending on the god and page.
 
-| God       | Page 1 | Page 2 | Page 3 | Page 4 | Page 5 | Page 6 |
-|-----------|--------|--------|--------|--------|--------|--------|
-| Zeus      |      4 |      5 |      4 |      8 |      5 |      2 |
-| Poseidon  |     26 |      3 |      0 |      2 |      4 |      4 |
-| Athena    |      4 |      4 |      1 |      3 |      5 |      2 |
-| Aphrodite |      4 |      4 |      0 |      3 |      4 |      2 |
-| Artemis   |      4 |      3 |      2 |      5 |      4 |      1 |
-| Ares      |      4 |      3 |      1 |      3 |      4 |      2 |
-| Dionysus  |      4 |      3 |      3 |      4 |      5 |      3 |
-| Hermes    |      3 |      2 |      4 |      4 |    N/A |    N/A |
-| Demeter   |      4 |      4 |      0 |      4 |      4 |      2 |
+| God       | Page 1 | Page 2 | Page 3 | Page 4 | Page 5 | Page 6 | Total |
+|-----------|--------|--------|--------|--------|--------|--------|-------|
+| Zeus      |      4 |      5 |      4 |      8 |      5 |      2 |    28 |
+| Poseidon  |     26 |      3 |      0 |      2 |      4 |      4 |    39 |
+| Athena    |      4 |      4 |      1 |      3 |      5 |      2 |    19 |
+| Aphrodite |      4 |      4 |      0 |      3 |      4 |      2 |    17 |
+| Artemis   |      4 |      3 |      2 |      5 |      4 |      1 |    19 |
+| Ares      |      4 |      3 |      1 |      3 |      4 |      2 |    17 |
+| Dionysus  |      4 |      3 |      3 |      4 |      5 |      3 |    22 |
+| Hermes    |      3 |      2 |      4 |      4 |    N/A |    N/A |    13 |
+| Demeter   |      4 |      4 |      0 |      4 |      4 |      2 |    18 |
 
 These rolls relate to determining the various properties of the boons (amount of damage, knockback, etc).
 
