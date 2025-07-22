@@ -1009,7 +1009,10 @@ function PredictLoot(door)
     end
   end
   for i, exitRoom in pairs(exitRooms) do
-    if exitRoom.ForcedRewardStore ~= nil then
+    if exitRoom.FirstClearRewardStore ~= nil and IsRoomFirstClearOverShrinePointThreshold(GetEquippedWeapon(), run, exitRoom.GenusName or exitRoom.Name) then
+      -- on fresh file, e.g., you get Titan's Blood instead of Darkness from Meg
+      rewardStoreName = exitRoom.FirstClearRewardStore
+    elseif exitRoom.ForcedRewardStore ~= nil then
       -- if any room is forced to give eg. a gold leaf,
       -- then all of them will.
       rewardStoreName = exitRoom.ForcedRewardStore
