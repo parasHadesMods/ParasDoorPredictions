@@ -990,6 +990,7 @@ function PredictLoot(door)
     end
   end
   RandomSynchronize()
+  UpdateRunHistoryCache(tmpRun) -- fix up biome depth for exits
   local exitCount = ExitCountForRoom(tmpRoom)
   for i=1,exitCount do
     local roomData = ChooseNextRoomData(tmpRun)
